@@ -17,7 +17,8 @@ const config = {
     compileDest: 'build/typescript/compile',
     rollupDest: 'build/typescript/rollup',
     rollupTestDest: 'build/typescript/rollupTest',
-    dist: 'dist',
+    test: 'build/typescript/test',
+    distribution: 'dist',
     development: true
 }
 
@@ -25,7 +26,7 @@ const config = {
 gulp.task('clean', () => {
     return new Promise(() => {
         rimraf.sync(`${config.buildBase}`)
-        rimraf.sync(`${config.dist}/*`)
+        rimraf.sync(`${config.distribution}/*`)
     })
 })
 
@@ -84,14 +85,16 @@ gulp.task('rollup-test', ['rollup'], () => {
 
 gulp.task('copy', ['rollup'], () => {
     return gulp.src(`${config.rollupDest}/vue-yar.js`)
-               .pipe(gulp.dest(config.dist))
+               .pipe(gulp.dest(config.distribution))
 })
 
-gulp.task('copy-test', ['rollup-test'], () => {
+gulp.task('copy-test', ['rollup', 'rollup-test'], () => {
     return gulp.src([
         `${config.srcTestDir}/*.html`,
-        `${config.rollupTestDest}/*.js`
-    ]).pipe(gulp.dest(config.dist))
+        `${config.srcTestDir}/*.json`,
+        `${config.rollupTestDest}/*.js`,
+        `${config.rollupDest}/vue-yar.js`
+    ]).pipe(gulp.dest(config.test))
 })
 
 // ビルド

@@ -3,19 +3,35 @@ import VueYar from '../../../build/typescript/rollup/vue-yar'
 
 function main() {
 
-    Vue.use(VueYar, { test: "ypa!" })
+    Vue.use(VueYar, { test1: "ypa!" })
 
-    new Vue({
+    const vm = new Vue({
         el: "#app",
-        template: `<div>{{ value }}</div>`,
+        template: `
+            <div>
+                <p>{{ value }}</p>
+                <p>{{ json }}</p>
+                <p>{{ error }}</p>
+            </div>`,
+        data: () => ({
+            error: ""
+        }),
         computed: {
             value: function () {
-                return this.test
+                return this.test1 ? this.test1.substring(0, 20) : ""
+            },
+            json: function () {
+                return this.test3 && this.test3.greeting ? this.test3.greeting : ""
             }
         },
         resource: {
-            test: "./index.js"
+            test1: "./index.js",
+            test2: "will_not_found",
+            test3: "index.json"
         }
+    })
+    vm.$on("resource.error", function (r) {
+        this.error = "エラー"
     })
 }
 

@@ -1,13 +1,13 @@
-import { ComponentOptions } from "vue/types/options"
-import { Resource, VueConstructor } from "vue/types/vue"
-
 export interface VueYar {
-    install: (constructor: VueConstructor, options?: VueYarOption) => void
+    install: (constructor: any, options?: VueYarOption) => void
 }
 
 export interface VueYarOption {
-    // TODO
+    window?: Window
 }
+
+/*
+TODO
 
 declare module 'vue/types/vue' {
 
@@ -32,3 +32,4 @@ declare module 'vue/types/options' {
     }
 
 }
+*/

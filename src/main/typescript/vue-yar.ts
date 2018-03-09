@@ -1,41 +1,22 @@
-const VueYar: any = {
+import VueYarInstance from "./instance"
+import { VueYar, VueYarOption } from "./type/vue-yar"
+import Registry from "./registry"
 
-    install: function (Vue: any, options: any) {
+const VueYar: VueYar = {
 
-        console.log("install")
-        console.log(options)
+    install: function (Vue: any, options?: VueYarOption) {
+
+        options = options ? options : {}
+
+        const vueYar = new VueYarInstance(new Registry(options))
 
         Object.defineProperties(Vue.prototype, {
             $resource: {
-                get: () => ({ $options: options })
+                get: () => ({ $options: vueYar.options })
             }
         })
 
-        Vue.mixin({
-            data() {
-                const resource = this.$options.resource
-                const dataObj: any = {}
-                Object.keys(resource).forEach(k => {
-                    dataObj[k] = null
-                })
-                return dataObj
-            },
-            created() {
-                const resource = this.$options.resource
-                Object.keys(resource).forEach(k => {
-                    fetch(resource[k], {
-                        method: "GET"
-                    }).then(response => response.text())
-                      .then(text => {
-                          this[k] = text
-                      })
-                      .catch(r => {
-                          console.log(r)
-                          this[k] = "エラー"
-                      })
-                })
-            }
-        })
+        Vue.mixin(vueYar.mixin)
     }
 }
 
