@@ -1,6 +1,6 @@
 import VueYarInstance from "./instance"
-import { VueYar, VueYarOption } from "./type/vue-yar"
 import Registry from "./registry"
+import { VueYar, VueYarOption } from "../types/vue-yar"
 
 const VueYar: VueYar = {
 

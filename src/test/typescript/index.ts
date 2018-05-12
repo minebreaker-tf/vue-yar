@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import VueYar from '../../../build/typescript/rollup/vue-yar'
+import VueYar from '../../../src/main/typescript/vue-yar'
 
 function main() {
 

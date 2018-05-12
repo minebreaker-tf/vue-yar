@@ -1,4 +1,4 @@
-import { VueYarOption } from "./type/vue-yar"
+import { VueYarOption } from "../types/vue-yar"
 
 class Registry {
 

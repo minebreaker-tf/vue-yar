@@ -11,7 +11,7 @@ const karma = require('karma')
 const config = {
     // TypeScriptソース
     srcDir: 'src/main/typescript',
-    srcTestDir: 'src/test/javascript',
+    srcTestDir: 'src/test/typescript',
     // ビルド出力先
     buildBase: 'build/typescript',
     compileDest: 'build/typescript/compile',

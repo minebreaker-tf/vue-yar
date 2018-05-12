@@ -1,5 +1,7 @@
 .idea/
 build/
 dist/
-README.md
 node_modules/
+
+README.md
+document/

@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "description": "Vue plugin of yet another resource fetching",
     "main": "dist/vue-yar.js",
-    "types": "src/main/typings/vue-yar.d.ts",
+    "types": "src/main/types/vue-yar.d.ts",
     "scripts": {
         "build": "gulp build",
         "test": "gulp test"
