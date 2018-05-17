@@ -1,73 +1,63 @@
-const gulp = require('gulp')
-const gulpTypescript = require('gulp-typescript')
-const rollup = require('rollup')
-const rollupAlias = require('rollup-plugin-alias')
-const rollupReplace = require('rollup-plugin-replace')
-const rollupNodeResolve = require('rollup-plugin-node-resolve')
-const rollupBabel = require('rollup-plugin-babel')
-const rimraf = require('rimraf')
-const karma = require('karma')
+const gulp = require("gulp")
+const gulpTypescript = require("gulp-typescript")
+const rollup = require("rollup")
+const rollupAlias = require("rollup-plugin-alias")
+const rollupReplace = require("rollup-plugin-replace")
+const rollupNodeResolve = require("rollup-plugin-node-resolve")
+const rollupBabel = require("rollup-plugin-babel")
+const rimraf = require("rimraf")
+const karma = require("karma")
 
 const config = {
     // TypeScriptソース
-    srcDir: 'src/main/typescript',
-    srcTestDir: 'src/test/typescript',
+    srcDir: "src",
+    srcTestDir: "test",
     // ビルド出力先
-    buildBase: 'build/typescript',
-    compileDest: 'build/typescript/compile',
-    rollupDest: 'build/typescript/rollup',
-    rollupTestDest: 'build/typescript/rollupTest',
-    test: 'build/typescript/test',
-    distribution: 'dist',
+    buildBase: "build",
+    rollupDest: "build/rollup",
+    rollupTestDest: "build/rollupTest",
+    test: "build/test",
+    distribution: "dist",
     development: true
 }
 
 // 出力先をクリンナップ
-gulp.task('clean', () => {
+gulp.task("clean", () => {
     return new Promise(() => {
         rimraf.sync(`${config.buildBase}`)
         rimraf.sync(`${config.distribution}/*`)
     })
 })
 
-// コンパイル
-gulp.task('compile-typescript', () => {
-    const project = gulpTypescript.createProject('tsconfig.json')
-    return project.src()
-                  .pipe(project())
-                  .js
-                  .pipe(gulp.dest(config.compileDest))
-})
-
 // rollup
-gulp.task('rollup', ['compile-typescript'], () => {
+gulp.task("rollup", () => {
     return rollup.rollup({
-        input: `${config.compileDest}/vue-yar.js`,
+        input: `${config.srcDir}/vue-yar.js`,
         plugins: [
             rollupAlias({
-                vue: 'node_modules/vue/dist/vue.esm.js'
+                vue: "node_modules/vue/dist/vue.esm.js"
             }),
             rollupBabel()
         ]
     }).then(bundle =>
         bundle.write({
             file: `${config.rollupDest}/vue-yar.js`,
-            format: 'es',
+            format: "es",
             sourcemap: config.development
         })
     )
 })
 
 // テストファイル rollup
-gulp.task('rollup-test', ['rollup'], () => {
+gulp.task("rollup-test", ["rollup"], () => {
     return rollup.rollup({
-        input: `${config.srcTestDir}/index.js`,
+        input: `${config.srcTestDir}/sample.js`,
         plugins: [
             rollupAlias({
-                vue: 'node_modules/vue/dist/vue.esm.js'
+                vue: "node_modules/vue/dist/vue.esm.js"
             }),
             rollupNodeResolve(),
-            rollupReplace({ 'process.env.NODE_ENV': JSON.stringify('development') }),
+            rollupReplace({ "process.env.NODE_ENV": JSON.stringify("development") }),
             rollupBabel({
                 babelrc: false,
                 comments: false
@@ -75,32 +65,29 @@ gulp.task('rollup-test', ['rollup'], () => {
         ]
     }).then(bundle => {
         return bundle.write({
-            file: `${config.rollupTestDest}/index.js`,
-            format: 'iife',
-            name: 'main',
+            file: `${config.rollupTestDest}/sample.js`,
+            format: "iife",
+            name: "main",
             sourcemap: config.development
         })
     })
 })
 
-gulp.task('copy', ['rollup'], () => {
+gulp.task("copy", ["rollup"], () => {
     return gulp.src(`${config.rollupDest}/vue-yar.js`)
                .pipe(gulp.dest(config.distribution))
 })
 
-gulp.task('copy-test', ['rollup', 'rollup-test'], () => {
+gulp.task("copy-test", ["rollup", "rollup-test"], () => {
     return gulp.src([
-        `${config.srcTestDir}/*.html`,
-        `${config.srcTestDir}/*.json`,
-        `${config.rollupTestDest}/*.js`,
-        `${config.rollupDest}/vue-yar.js`
-    ]).pipe(gulp.dest(config.test))
+        `${config.rollupTestDest}/*.js`
+    ]).pipe(gulp.dest("test-files"))
 })
 
 // ビルド
-gulp.task('assemble', ['compile-typescript', 'rollup', 'copy', 'copy-test'])
-gulp.task('build', ['compile-typescript', 'rollup', 'rollup-test', 'copy', 'copy-test'])
-gulp.task('default', ['build'])
+gulp.task("assemble", ["rollup", "copy", "copy-test"])
+gulp.task("build", ["rollup", "rollup-test", "copy", "copy-test"])
+gulp.task("default", ["build"])
 
 gulp.doneCallback = (error) => {
     // テスト実行時、Karmaかnodeのバグで、コネクションが生きているのかプロセスが終了しない
