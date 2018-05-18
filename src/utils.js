@@ -12,6 +12,9 @@ class Logger {
         if (this.condition) console.log(...message)
     }
 
+    warn(...message) {
+        if (this.condition) console.warn(...message)
+    }
 }
 
 const debug = "__DEBUG__"

@@ -1,5 +1,5 @@
 import Vue from "vue";
-import { noop, alwaysTrue } from "./utils";
+import { noop, alwaysTrue, logger } from "./utils";
 
 export function wrap(wrappedComponent, options, resourceInfoParam) {
 
@@ -62,19 +62,23 @@ export function wrap(wrappedComponent, options, resourceInfoParam) {
                     if (validate(response)) {
                         return Promise.resolve(mutate(response))
                     } else {
-                        this.$children[0].$resourceDelegate(resourceInfo[key]["failed"], "Global validation error")
+                        logger.warn("Global validation failed on key '%s'", key)
+                        this.$children[0].$resourceDelegate(resourceInfo[key]["failed"])
                     }
                 }).then(result => {
                     if (resourceInfo[key].validate(result)) {
                         this.resource[key] = result
                         this.$children[0].$resourceDelegate(resourceInfo[key]["loaded"])
                     } else {
+                        logger.warn("Response validation failed on key '%s'", key)
                         // const i = this.$children[0].$resourceDelegate
                         // i(resourceInfo[key]["failed"], "Response validation error")  // doesn't work
-                        this.$children[0].$resourceDelegate(resourceInfo[key]["failed"], "Response validation error")  // works
+                        this.$children[0].$resourceDelegate(resourceInfo[key]["failed"])  // works
                     }
                 }).catch(e => {
-                    this.$children[0].$resourceDelegate(resourceInfo[key]["failed"], "Unexpected error", e)
+                    logger.warn("Unexpected error on '%s'", key)
+                    logger.warn(e)
+                    this.$children[0].$resourceDelegate(resourceInfo[key]["failed"], e)
                 })
             }
         },

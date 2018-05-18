@@ -8571,6 +8571,9 @@ class Logger {
         if (this.condition) console.log(...message);
     }
 
+    warn(...message) {
+        if (this.condition) console.warn(...message);
+    }
 }
 
 const debug = "__DEBUG__";
@@ -8677,17 +8680,22 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
                     if (validate(response)) {
                         return Promise.resolve(mutate(response));
                     } else {
-                        this.$children[0].$resourceDelegate(resourceInfo[key]["failed"], "Global validation error");
+                        logger.warn("Global validation failed on key '%s'", key);
+                        this.$children[0].$resourceDelegate(resourceInfo[key]["failed"]);
                     }
                 }).then(result => {
                     if (resourceInfo[key].validate(result)) {
                         this.resource[key] = result;
                         this.$children[0].$resourceDelegate(resourceInfo[key]["loaded"]);
                     } else {
-                        this.$children[0].$resourceDelegate(resourceInfo[key]["failed"], "Response validation error");
+                        logger.warn("Response validation failed on key '%s'", key);
+
+                        this.$children[0].$resourceDelegate(resourceInfo[key]["failed"]);
                     }
                 }).catch(e => {
-                    this.$children[0].$resourceDelegate(resourceInfo[key]["failed"], "Unexpected error", e);
+                    logger.warn("Unexpected error on '%s'", key);
+                    logger.warn(e);
+                    this.$children[0].$resourceDelegate(resourceInfo[key]["failed"], e);
                 });
             }
         },
@@ -8782,12 +8790,37 @@ if (Vue) {
     Vue.use(VueYar);
 }
 
-const resourceComponent = Vue.resource({
-    url: "http://localhost:8000/api/user/1",
-    template: {
-        success: `<div>ID: {{ resource.id }}, Name: {{ resource.name }}</div>`,
-        failure: `<div>Error</div>`,
-        loading: `<div>Loading...</div>`
+const component = Vue.extend({
+    props: ["user"],
+    template: `
+        <div>
+            <p v-if="error">Error</p>
+            <p v-else-if="user">ID: {{ user.id }}, Name: {{ user.name }}</p>
+            <p v-else>Loading...</p>
+        </div>`,
+    data: () => ({
+        error: ""
+    })
+});
+
+const resourceComponent = Vue.withResource(component, {
+    user: {
+        url: "http://localhost:8000/api/user/1",
+        validate(r) {
+            console.log("validate: %s", r);
+            return false;
+        },
+        beforeLoad() {
+            console.log("beforeLoad");
+        },
+        loaded() {
+            console.log("loaded");
+            this.error = "loaded hook";
+        },
+        failed(e) {
+            console.log("failed on ro", e);
+            this.error = "failed hook";
+        }
     }
 });
 
