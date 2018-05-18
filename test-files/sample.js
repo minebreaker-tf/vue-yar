@@ -8681,7 +8681,7 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
                 }).then(result => {
                     if (resourceInfo[key].validate(result)) {
                         this.resource[key] = result;
-                        this.$children[0].$resourceDelegate(resourceInfo[key]["loaded"], result);
+                        this.$children[0].$resourceDelegate(resourceInfo[key]["loaded"]);
                     } else {
                         this.$children[0].$resourceDelegate(resourceInfo[key]["failed"], "Response validation error");
                     }
@@ -8739,7 +8739,6 @@ const VueYar = {
 
         Vue$$1.prototype.$resourceDelegate = function (f, ...arg) {
             logger.log("delegating");
-            console.log(this);
             if (f) {
                 f.call(this, ...arg);
             }
@@ -8774,12 +8773,13 @@ const resourceComponent = Vue.withResource(component, {
         beforeLoad() {
             console.log("beforeLoad");
         },
-        loaded(result) {
-            console.log("loaded", result);
+        loaded() {
+            console.log("loaded");
+            this.error = "loaded hook";
         },
         failed(e) {
             console.log("failed on ro", e);
-            this.error = "Failed";
+            this.error = "failed hook";
         }
     }
 });

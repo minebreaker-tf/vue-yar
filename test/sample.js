@@ -24,12 +24,13 @@ const resourceComponent = Vue.withResource(component, {
         beforeLoad() {
             console.log("beforeLoad")
         },
-        loaded(result) {
-            console.log("loaded", result)
+        loaded() {
+            console.log("loaded")
+            this.error = "loaded hook"
         },
         failed(e) {
             console.log("failed on ro", e)
-            this.error = "Failed"
+            this.error = "failed hook"
         }
     }
 })

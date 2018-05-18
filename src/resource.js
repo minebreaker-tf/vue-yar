@@ -66,7 +66,7 @@ export function wrap(wrappedComponent, options, resourceInfoParam) {
                 }).then(result => {
                     if (resourceInfo[key].validate(result)) {
                         this.resource[key] = result
-                        this.$children[0].$resourceDelegate(resourceInfo[key]["loaded"], result)
+                        this.$children[0].$resourceDelegate(resourceInfo[key]["loaded"])
                     } else {
                         // const i = this.$children[0].$resourceDelegate
                         // i(resourceInfo[key]["failed"], "Response validation error")  // doesn't work
