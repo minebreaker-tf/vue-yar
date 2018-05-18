@@ -28,6 +28,7 @@ export function wrap(wrappedComponent, options, resourceInfoParam) {
     }
 
     return Vue.extend({
+        name: "ResourceComponent",
         render(h, ctx) {
             const props = {}
             for (let key in this.resource) {
@@ -83,29 +84,63 @@ export function wrap(wrappedComponent, options, resourceInfoParam) {
     })
 }
 
+function prepareProperty(props) {
+    if (props instanceof Array) {
+        if (props.indexOf("resource") < 0) throw Error("Property 'resource' is preserved.")
+        return props.concat(["resource"])
+    } else if (props instanceof Object) {
+        if (props.resource) throw Error("Property 'resource' is preserved.")
+        return Object.assign({}, props, { resource: null, default: null })
+    } else {
+        return { resource: null, default: null }
+    }
+}
+
+function prepareData(data) {
+    const d
+        = !data ? {}
+            : typeof data === "function" ? data()
+                : data
+    if (d.child) throw Error("Data 'child' is preserved")
+    d.child = "loading"
+    return d
+}
+
 export function createResource(options, rco) {
 
-    const co = {
-        props: ["resource"],
-        template: `
-            <div>
-                <success v-if="error"></success>
-                <failure v-else-if="resource"></failure>
-                <loading v-else></loading>
-            </div>`,
+    const props = prepareProperty(rco.props)
+    const data = prepareData(rco.data)  // Shares data among components
+
+    const co = Object.assign({}, rco, {
+        name: "ResourceComponentSwitcher",
+        props,
+        template: `<keep-alive><component :is="child" :resource="resource"></component></keep-alive>`,
+        data: () => data,
         components: {
-            success,
-            failure,
-            loading
+            success: { template: rco.template.success, props, data: () => data, components: rco.components },
+            loading: { template: rco.template.loading, props, data: () => data, components: rco.components },
+            failure: { template: rco.template.failure, props, data: () => data, components: rco.components }
         }
-    }
+    })
 
     const ro = {
         resource: {
-            url: rco["url"],
-            validate: rco["validate"]
+            url: rco.url,
+            validate: rco.validate,
+            beforeLoad() {
+                this.child = "loading"
+                rco.beforeLoad && rco.beforeLoad()
+            },
+            loaded() {
+                this.child = "success"
+                rco.loaded && rco.loaded()
+            },
+            failed() {
+                this.child = "failed"
+                rco.failed && rco.failed()
+            }
         }
     }
 
-    return Vue.extend(wrap(co, options, ro))
+    return wrap(co, options, ro)
 }
