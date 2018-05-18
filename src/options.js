@@ -59,9 +59,14 @@ function defaultValidate(response) {
  * @return {*} The value to bind
  */
 function defaultMutate(response) {
-    if (response.headers.get("Content-Type") === "application/json") {
+    console.log(response.headers.get("Content-Type"))
+    if (parseContentType(response.headers.get("Content-Type")) === "application/json") {
         return response.json()
     } else {
         return response.text()
     }
+}
+
+function parseContentType(contentTypeString) {
+    return contentTypeString.split(";")[0].trim()
 }
