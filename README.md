@@ -1,8 +1,7 @@
 # vue-yar
 
-Yet another resource-fetching library for Vue.js
+Yet another resource fetching library for Vue
 
-## Sample
 
 ## Simplified resource component
 
@@ -16,8 +15,6 @@ const component = Vue.resource({
         loading: `<p>Loading...</p>`,
         failure: `<p>Error</p>`
     },
-    // If true, watch "url" and re-fetch the resource if necessary
-    refetch: true,
     // Can validate the fetched resource is correct or not
     validate() {
         return data.id && data.name
@@ -46,10 +43,8 @@ const component = Vue.withResource({
         error: ""
     }),
 },  {
-    // user: `http://localhost:8080/api/user/${this.id}`
     user: {
         url: `http://localhost:8080/api/user/${this.id}`,
-        refetch: true,
         validate: response => {
             return response.id && response.name
         },
@@ -60,5 +55,5 @@ const component = Vue.withResource({
         }
     }
 })
-Vue.component(resource)
+Vue.component(component)
 ```
