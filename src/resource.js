@@ -11,6 +11,9 @@ export function wrap(wrappedComponent, options, resourceInfoParam) {
             url: resourceInfoParam[key]["url"],
             refetch: !!resourceInfoParam[key]["refetch"],
             validate: resourceInfoParam[key]["validate"] || alwaysTrue,
+            beforeLoad: resourceInfoParam[key]["beforeLoad"] || noop,
+            loaded: resourceInfoParam[key]["loaded"] || noop,
+            failed: resourceInfoParam[key]["failed"] || noop,
         }
     }
 
@@ -51,26 +54,26 @@ export function wrap(wrappedComponent, options, resourceInfoParam) {
         },
         methods: {
             load(key) {
-                this.$children[0].$options.beforeLoad(key)
+
+                this.$children[0].$resourceDelegate(resourceInfo[key]["beforeLoad"])
+
                 Promise.resolve(network(resourceInfo[key].url)).then(response => {
                     if (validate(response)) {
                         return Promise.resolve(mutate(response))
                     } else {
-                        this.$children[0].$options.failed(key, "Global validation error")
+                        this.$children[0].$resourceDelegate(resourceInfo[key]["failed"], "Global validation error")
                     }
                 }).then(result => {
                     if (resourceInfo[key].validate(result)) {
                         this.resource[key] = result
-                        this.$children[0].$options.loaded(key, result)
+                        this.$children[0].$resourceDelegate(resourceInfo[key]["loaded"], result)
                     } else {
-                        console.log("wooooo")
-                        // this.$children[0].$resourceDelegate(this.$children[0].$options.failed, key, "Response validation error")  // works
-                        // this.$children[0].$options.failed(key, "Response validation error")  // doesn't work
-                        this.$children[0].$resourceDelegate(resourceInfoParam[key]["failed"], key, "Response validation error")  // works
+                        // const i = this.$children[0].$resourceDelegate
+                        // i(resourceInfo[key]["failed"], "Response validation error")  // doesn't work
+                        this.$children[0].$resourceDelegate(resourceInfo[key]["failed"], "Response validation error")  // works
                     }
                 }).catch(e => {
-                    console.log(e)
-                    this.$children[0].$options.failed(key, "Unexpected error", e)
+                    this.$children[0].$resourceDelegate(resourceInfo[key]["failed"], "Unexpected error", e)
                 })
             }
         },

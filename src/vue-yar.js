@@ -19,7 +19,7 @@ const VueYar = {
 
         // Necessary to acquire "this"
         Vue.prototype.$resourceDelegate = function (f, ...arg) {
-            logger.log("delegating")
+            console.log(this)
             if (f) {
                 f.call(this, ...arg)
             }

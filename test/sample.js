@@ -11,18 +11,7 @@ const component = Vue.extend({
         </div>`,
     data: () => ({
         error: ""
-    }),
-
-    beforeLoad(key) {
-        console.log("beforeLoad", key)
-    },
-    loaded(key) {
-        console.log("loaded", key)
-    },
-    failed(key, e) {
-        console.log("failed", key, e)
-        this.error = "Failed"
-    }
+    })
 })
 
 const resourceComponent = Vue.withResource(component, {
@@ -30,9 +19,15 @@ const resourceComponent = Vue.withResource(component, {
         url: "http://localhost:8000/api/user/1",
         validate(r) {
             console.log("validate: %s", r)
-            return false
+            return true
         },
-        failed( e) {
+        beforeLoad() {
+            console.log("beforeLoad")
+        },
+        loaded(result) {
+            console.log("loaded", result)
+        },
+        failed(e) {
             console.log("failed on ro", e)
             this.error = "Failed"
         }
