@@ -13,14 +13,16 @@ const VueYar = {
             return wrap(wrappedComponentOptions, actualOptions, resourceOptions)
         }
 
-        // Vue.resource = function (resourceComponentOptions) {
-        //     return createResource(actualOptions, resourceComponentOptions)
-        // }
+        Vue.resource = function (resourceComponentOptions) {
+            return createResource(actualOptions, resourceComponentOptions)
+        }
 
         // Necessary to acquire "this"
         Vue.prototype.$resourceDelegate = function (f, ...arg) {
             logger.log("delegating")
-            f.call(this, ...arg)
+            if (f) {
+                f.call(this, ...arg)
+            }
         }
     }
 }

@@ -72,7 +72,7 @@ function defaultMutate(response) {
 function parseContentType(contentTypeString) {
     const parts = contentTypeString.split(";")
     if (parts.length > 0) {
-        return [0].trim()
+        return parts[0].trim()
     } else {
         return ""
     }

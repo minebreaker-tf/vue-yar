@@ -8559,7 +8559,7 @@ const alwaysTrue = function () {
     return true;
 };
 
-const noop$1 = function () {};
+
 
 class Logger {
 
@@ -8615,7 +8615,12 @@ function defaultMutate(response) {
 }
 
 function parseContentType(contentTypeString) {
-    return contentTypeString.split(";")[0].trim();
+    const parts = contentTypeString.split(";");
+    if (parts.length > 0) {
+        return parts[0].trim();
+    } else {
+        return "";
+    }
 }
 
 function wrap(wrappedComponent, options, resourceInfoParam) {
@@ -8627,10 +8632,7 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
         resourceInfo[key] = {
             url: resourceInfoParam[key]["url"],
             refetch: !!resourceInfoParam[key]["refetch"],
-            validate: resourceInfoParam[key]["validate"] || alwaysTrue,
-            beforeLoad: resourceInfoParam[key]["beforeLoad"] || noop$1,
-            loaded: resourceInfoParam[key]["loaded"] || noop$1,
-            failed: resourceInfoParam[key]["failed"] || noop$1
+            validate: resourceInfoParam[key]["validate"] || alwaysTrue
         };
     }
 
@@ -8664,27 +8666,26 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
         },
         methods: {
             load(key) {
-                const invoke = this.$children[0].$resourceDelegate;
-
-                invoke(resourceInfo[key].beforeLoad);
+                this.$children[0].$options.beforeLoad(key);
                 Promise.resolve(network(resourceInfo[key].url)).then(response => {
                     if (validate(response)) {
                         return Promise.resolve(mutate(response));
                     } else {
-                        invoke(resourceInfo[key].failed, "Global validation error");
+                        this.$children[0].$options.failed(key, "Global validation error");
                     }
                 }).then(result => {
                     if (resourceInfo[key].validate(result)) {
                         this.resource[key] = result;
-
-                        invoke(resourceInfo[key].loaded, result);
+                        this.$children[0].$options.loaded(key, result);
                     } else {
-                        invoke(resourceInfo[key].failed, "Response validation error");
+                        console.log("wooooo");
+
+                        console.log(resourceInfoParam[key]["failed"]);
+                        this.$children[0].$resourceDelegate(resourceInfoParam[key]["failed"], key, "Response validation error");
                     }
                 }).catch(e => {
                     console.log(e);
-
-                    invoke(resourceInfo[key].failed, "Unexpected error", e);
+                    this.$children[0].$options.failed(key, "Unexpected error", e);
                 });
             }
         },
@@ -8692,6 +8693,33 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
             wrappedComponent
         }
     });
+}
+
+function createResource(options, rco) {
+
+    const co = {
+        props: ["resource"],
+        template: `
+            <div>
+                <success v-if="error"></success>
+                <failure v-else-if="resource"></failure>
+                <loading v-else></loading>
+            </div>`,
+        components: {
+            success,
+            failure,
+            loading
+        }
+    };
+
+    const ro = {
+        resource: {
+            url: rco["url"],
+            validate: rco["validate"]
+        }
+    };
+
+    return Vue.extend(wrap(co, options, ro));
 }
 
 const VueYar = {
@@ -8704,9 +8732,15 @@ const VueYar = {
             return wrap(wrappedComponentOptions, actualOptions, resourceOptions);
         };
 
+        Vue$$1.resource = function (resourceComponentOptions) {
+            return createResource(actualOptions, resourceComponentOptions);
+        };
+
         Vue$$1.prototype.$resourceDelegate = function (f, ...arg) {
             logger.log("delegating");
-            f.call(this, ...arg);
+            if (f) {
+                f.call(this, ...arg);
+            }
         };
     }
 };
@@ -8725,26 +8759,30 @@ const component = Vue.extend({
         </div>`,
     data: () => ({
         error: ""
-    })
+    }),
+
+    beforeLoad(key) {
+        console.log("beforeLoad", key);
+    },
+    loaded(key) {
+        console.log("loaded", key);
+    },
+    failed(key, e) {
+        console.log("failed", key, e);
+        this.error = "Failed";
+    }
 });
 
 const resourceComponent = Vue.withResource(component, {
     user: {
-        url: "http://localhost:8000/api/user/2",
+        url: "http://localhost:8000/api/user/1",
         validate(r) {
             console.log("validate: %s", r);
-            return true;
-        },
-
-        beforeLoad() {
-            console.log("beforeLoad");
-        },
-        loaded() {
-            console.log("loaded");
+            return false;
         },
         failed(e) {
-            console.log("failed", e);
-            this.error = "Failed!";
+            console.log("failed on ro", e);
+            this.error = "Failed";
         }
     }
 });
