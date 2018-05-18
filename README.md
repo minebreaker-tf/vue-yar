@@ -7,7 +7,7 @@ Yet another resource-fetching library for Vue.js
 ## Simplified resource component
 
 ```javascript
-Vue.resource({
+const component = Vue.resource({
     props: ["id"],
     // Resource location
     url: `http://localhost:8080/api/user/${this.id}`,
@@ -34,7 +34,7 @@ Vue.resource({
 ## Resource HOC
 
 ```javascript
-const resource = Vue.withResource({
+const component = Vue.withResource({
     props: ["id", "resource"],
     template: `
         <div>
@@ -53,9 +53,9 @@ const resource = Vue.withResource({
         validate: response => {
             return response.id && response.name
         },
-        beforeLoad(key) {},
-        loaded(key) {},
-        failed(key) {
+        beforeLoad() {},
+        loaded() {},
+        failed() {
             this.error = "Error!"
         }
     }

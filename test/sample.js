@@ -11,18 +11,7 @@ const component = Vue.extend({
         </div>`,
     data: () => ({
         error: ""
-    }),
-
-    beforeLoad() {
-        console.log("beforeLoad")
-    },
-    loaded() {
-        console.log("loaded")
-    },
-    failed(e) {
-        console.log("failed", e)
-        this.error = "Failed!"
-    }
+    })
 })
 
 const resourceComponent = Vue.withResource(component, {
@@ -31,6 +20,17 @@ const resourceComponent = Vue.withResource(component, {
         validate(r) {
             console.log("validate: %s", r)
             return true
+        },
+
+        beforeLoad() {
+            console.log("beforeLoad")
+        },
+        loaded() {
+            console.log("loaded")
+        },
+        failed(e) {
+            console.log("failed", e)
+            this.error = "Failed!"
         }
     }
 })

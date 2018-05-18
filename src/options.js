@@ -70,5 +70,10 @@ function defaultMutate(response) {
 }
 
 function parseContentType(contentTypeString) {
-    return contentTypeString.split(";")[0].trim()
+    const parts = contentTypeString.split(";")
+    if (parts.length > 0) {
+        return [0].trim()
+    } else {
+        return ""
+    }
 }
