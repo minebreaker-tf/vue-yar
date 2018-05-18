@@ -62,23 +62,3 @@ const resource = Vue.withResource({
 })
 Vue.component(resource)
 ```
-
-## Options
-
-```javascript
-Vue.use(VueYar, { options: {
-    network(url) {
-        return fetch("GET", {url})
-    },
-    validate(response) {
-        return response.statusCode == 200
-    },
-    mutate(response) {
-        if (response.contentType == "application/json") {
-            return response.json()
-        } else {
-            return response.text()
-        }
-    }
-}})
-```

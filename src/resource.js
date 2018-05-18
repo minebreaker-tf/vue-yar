@@ -77,3 +77,30 @@ export function wrap(wrappedComponent, options, resourceInfoParam) {
         }
     })
 }
+
+export function createResource(options, rco) {
+
+    const co = {
+        props: ["resource"],
+        template: `
+            <div>
+                <success v-if="error"></success>
+                <failure v-else-if="resource"></failure>
+                <loading v-else></loading>
+            </div>`,
+        components: {
+            success,
+            failure,
+            loading
+        }
+    }
+
+    const ro = {
+        resource: {
+            url: rco["url"],
+            validate: rco["validate"]
+        }
+    }
+
+    return Vue.extend(wrap(co, options, ro))
+}
