@@ -1,5 +1,5 @@
 import Vue from "vue"
-import VueYar from "../src/vue-yar"
+import VueYar from "../build/rollup/vue-yar"
 
 const component = Vue.extend({
     props: ["user"],
@@ -19,14 +19,13 @@ const resourceComponent = Vue.withResource(component, {
         url: "http://localhost:8000/api/user/1",
         validate(r) {
             console.log("validate: %s", r)
-            return false
+            return true
         },
         beforeLoad() {
             console.log("beforeLoad")
         },
         loaded() {
             console.log("loaded")
-            this.error = "loaded hook"
         },
         failed(e) {
             console.log("failed on ro", e)

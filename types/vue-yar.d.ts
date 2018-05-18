@@ -1,4 +1,12 @@
-import Vue, { ComponentOptions } from "vue"
+import Vue, { ComponentOptions, PluginObject } from "vue"
+
+export default interface VueYar extends PluginObject<VueYarOptions?> { }
+
+export interface VueYarOptions {
+    network?: (string) => any,
+    validate?: (any) => boolean
+    mutate?: (any) => any
+}
 
 export interface ResourceOptions {
     url: string

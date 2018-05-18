@@ -1,10 +1,9 @@
 const gulp = require("gulp")
-const gulpTypescript = require("gulp-typescript")
 const rollup = require("rollup")
 const rollupAlias = require("rollup-plugin-alias")
-const rollupReplace = require("rollup-plugin-replace")
 const rollupNodeResolve = require("rollup-plugin-node-resolve")
-const rollupBabel = require("rollup-plugin-babel")
+const rollupTypescript = require("rollup-plugin-typescript")
+const rollupReplace = require("rollup-plugin-replace")
 const rimraf = require("rimraf")
 const karma = require("karma")
 
@@ -24,7 +23,7 @@ const config = {
 // 出力先をクリンナップ
 gulp.task("clean", () => {
     return new Promise(() => {
-        rimraf.sync(`${config.buildBase}`)
+        rimraf.sync(`${config.buildBase}/*`)
         rimraf.sync(`${config.distribution}/*`)
     })
 })
@@ -32,12 +31,12 @@ gulp.task("clean", () => {
 // rollup
 gulp.task("rollup", () => {
     return rollup.rollup({
-        input: `${config.srcDir}/vue-yar.js`,
+        input: `${config.srcDir}/vue-yar.ts`,
         plugins: [
+            rollupTypescript,
             rollupAlias({
-                vue: "node_modules/vue/dist/vue.esm.js"
-            }),
-            rollupBabel()
+                // vue: "node_modules/vue/dist/vue.esm.js"
+            })
         ]
     }).then(bundle =>
         bundle.write({
@@ -53,15 +52,12 @@ gulp.task("rollup-test", ["rollup"], () => {
     return rollup.rollup({
         input: `${config.srcTestDir}/sample.js`,
         plugins: [
+            rollupTypescript,
             rollupAlias({
                 vue: "node_modules/vue/dist/vue.esm.js"
             }),
-            rollupNodeResolve(),
-            rollupReplace({ "process.env.NODE_ENV": JSON.stringify("development") }),
-            rollupBabel({
-                babelrc: false,
-                comments: false
-            }),
+            rollupReplace({ "process.env.NODE_ENV": JSON.stringify("development") })
+            // rollupNodeResolve()
         ]
     }).then(bundle => {
         return bundle.write({
@@ -75,7 +71,7 @@ gulp.task("rollup-test", ["rollup"], () => {
 
 gulp.task("copy", ["rollup"], () => {
     return gulp.src(`${config.rollupDest}/vue-yar.js`)
-               .pipe(gulp.dest(config.distribution))
+        .pipe(gulp.dest(config.distribution))
 })
 
 gulp.task("copy-test", ["rollup", "rollup-test"], () => {

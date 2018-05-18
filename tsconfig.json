@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "module": "es6",
+        "moduleResolution": "node",
+        "target": "es6",
+        "strict": true,
+        "alwaysStrict": true,
+        "noImplicitAny": true,
+        "sourceMap": true,
+        "strictNullChecks": true,
+        "removeComments": true
+    },
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.js"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
