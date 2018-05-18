@@ -1,6 +1,7 @@
 import Vue from "vue"
 import { createOptions } from "./options"
 import { wrap } from "./resource";
+import { logger } from "./utils";
 
 const VueYar = {
 
@@ -18,7 +19,7 @@ const VueYar = {
 
         // Necessary to acquire "this"
         Vue.prototype.$resourceDelegate = function(f, ...arg) {
-            console.log("delegating")
+            logger.log("delegating")
             f.call(this, ...arg)
         }
     }

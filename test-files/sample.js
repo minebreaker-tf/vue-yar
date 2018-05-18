@@ -8555,6 +8555,27 @@ function getOuterHTML(el) {
 
 Vue.compile = compileToFunctions;
 
+const alwaysTrue = function () {
+    return true;
+};
+
+
+
+class Logger {
+
+    constructor(condition) {
+        this.condition = condition;
+    }
+
+    log(...message) {
+        if (this.condition) console.log(...message);
+    }
+
+}
+
+const debug = false;
+const logger = new Logger("development" !== "production" && debug);
+
 function createOptions(options) {
 
     if (!options) {
@@ -8569,7 +8590,7 @@ function createOptions(options) {
 
     for (let key in options) {
         if (key !== "network" || key !== "validate" || key !== "mutate") {
-            console.warn("Unknown option: %s", key);
+            logger.log("Unknown option: %s", key);
         }
     }
     return returningOptions;
@@ -8584,7 +8605,7 @@ function defaultValidate(response) {
 }
 
 function defaultMutate(response) {
-    console.log(response.headers.get("Content-Type"));
+    logger.log(response.headers.get("Content-Type"));
     if (parseContentType(response.headers.get("Content-Type")) === "application/json") {
         return response.json();
     } else {
@@ -8595,10 +8616,6 @@ function defaultMutate(response) {
 function parseContentType(contentTypeString) {
     return contentTypeString.split(";")[0].trim();
 }
-
-const alwaysTrue = function () {
-  return true;
-};
 
 function wrap(wrappedComponent, options, resourceInfoParam) {
 
@@ -8681,7 +8698,7 @@ const VueYar = {
         };
 
         Vue$$1.prototype.$resourceDelegate = function (f, ...arg) {
-            console.log("delegating");
+            logger.log("delegating");
             f.call(this, ...arg);
         };
     }

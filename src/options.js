@@ -1,3 +1,5 @@
+import { logger } from "./utils"
+
 /**
  * Check and inject default values if necessary.
  *
@@ -18,7 +20,7 @@ export function createOptions(options) {
 
     for (let key in options) {
         if (key !== "network" || key !== "validate" || key !== "mutate") {
-            console.warn("Unknown option: %s", key)
+            logger.log("Unknown option: %s", key)
         }
     }
     return returningOptions
@@ -59,7 +61,7 @@ function defaultValidate(response) {
  * @return {*} The value to bind
  */
 function defaultMutate(response) {
-    console.log(response.headers.get("Content-Type"))
+    logger.log(response.headers.get("Content-Type"))
     if (parseContentType(response.headers.get("Content-Type")) === "application/json") {
         return response.json()
     } else {
