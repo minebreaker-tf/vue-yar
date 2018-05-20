@@ -1,6 +1,9 @@
 import Vue, { ComponentOptions, PluginObject } from "vue"
+import VueYarObject from "../src/vue-yar"
 
-export default interface VueYar extends PluginObject<VueYarOptions> { }
+export default VueYarObject
+
+export interface VueYar extends PluginObject<VueYarOptions> { }
 
 export interface VueYarOptions {
     network?: (url: string) => any,

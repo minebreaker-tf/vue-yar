@@ -11132,15 +11132,15 @@ function createResource(options, rco) {
 }
 
 const VueYarObject = {
-    install: function (VueC, options) {
+    install: function (Vue$$1, options) {
         const actualOptions = createOptions(options);
-        VueC.withResource = function (wrappedComponentOptions, resourceOptions) {
+        Vue$$1.withResource = function (wrappedComponentOptions, resourceOptions) {
             return wrap(wrappedComponentOptions, actualOptions, resourceOptions);
         };
-        Vue.resource = function (resourceComponentOptions) {
+        Vue$$1.resource = function (resourceComponentOptions) {
             return createResource(actualOptions, resourceComponentOptions);
         };
-        Vue.prototype.$resourceDelegate = function (f, ...arg) {
+        Vue$$1.prototype.$resourceDelegate = function (f, ...arg) {
             logger.log("delegating");
             if (f) {
                 f.call(this, ...arg);

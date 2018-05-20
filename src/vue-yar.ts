@@ -2,15 +2,15 @@ import Vue from "vue"
 import { createOptions } from "./options"
 import { wrap, createResource } from "./resource";
 import { logger } from "./utils";
-import VueYar from "../types/vue-yar"
+import { VueYar } from "../types/vue-yar"
 
 const VueYarObject: VueYar = {
 
-    install: function (VueC, options) {
+    install: function (Vue, options) {
 
         const actualOptions = createOptions(options)
 
-        VueC.withResource = function (wrappedComponentOptions, resourceOptions) {
+        Vue.withResource = function (wrappedComponentOptions, resourceOptions) {
             return wrap(wrappedComponentOptions, actualOptions, resourceOptions)
         }
 
