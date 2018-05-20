@@ -18,7 +18,9 @@ const component = Vue.extend({
 
 const resourceComponent = Vue.withResource(component, {
     user: {
-        url: `http://localhost:8000/api/user/${this.id}`,
+        url() {
+            return `http://localhost:8000/api/user/${this.id}`
+        },
         refetch: true,
         validate(r) {
             console.log("validate: %s", r)

@@ -2,6 +2,14 @@ export const alwaysTrue = function () { return true }
 
 export const noop = function () { }
 
+export function unwrap(thisRef: any, target: Function | Object) {
+    if (typeof target === "function") {
+        return target.call(thisRef)
+    } else {
+        return target
+    }
+}
+
 class Logger {
 
     constructor(private condition: boolean) { }

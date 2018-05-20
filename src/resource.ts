@@ -1,5 +1,5 @@
 import Vue, { ComponentOptions } from "vue";
-import { noop, alwaysTrue, logger } from "./utils";
+import { noop, alwaysTrue, logger, unwrap } from "./utils";
 import { VueYarOptions, CheckedVueYarOptions, ResourceOptions, ResourceComponentOptions } from "../types/vue-yar";
 
 export function wrap(wrappedComponent: ComponentOptions<Vue>, options: CheckedVueYarOptions, resourceInfoParam: ResourceOptions): any {
@@ -18,14 +18,22 @@ export function wrap(wrappedComponent: ComponentOptions<Vue>, options: CheckedVu
         }
     }
 
-    const urls: any = {}
-    for (let key in resourceInfo) {
-        urls[key] = resourceInfo[key].url
-    }
+    const data = function (this: any) {
 
-    const resources: any = {}
-    for (let key in resourceInfo) {
-        resources[key] = null
+        const urls: any = {}
+        for (let key in resourceInfo) {
+            urls[key] = unwrap(this, resourceInfo[key].url)
+        }
+
+        const resources: any = {}
+        for (let key in resourceInfo) {
+            resources[key] = null
+        }
+
+        return {
+            url: urls,
+            resource: resources
+        }
     }
 
     let watch: any = null
@@ -54,11 +62,8 @@ export function wrap(wrappedComponent: ComponentOptions<Vue>, options: CheckedVu
             }
             return h(wrappedComponent, { props })
         },
-        data: () => ({
-            url: urls,
-            resource: resources
-        }),
-        watch,
+        data,
+        // watch,
         mounted() {
             for (let key in resourceInfo) {
                 this.load(key)
@@ -69,7 +74,15 @@ export function wrap(wrappedComponent: ComponentOptions<Vue>, options: CheckedVu
 
                 this.$children[0].$resourceDelegate(resourceInfo[key]["beforeLoad"])
 
-                Promise.resolve(network(resourceInfo[key].url)).then(response => {
+                const url = this.url[key]
+                if (!url) {
+                    logger.log("URL is not defined.")
+                    return
+                } else {
+                    logger.log("Fetch URL: %s", url)
+                }
+
+                Promise.resolve(network(url)).then(response => {
                     if (validate(response)) {
                         return Promise.resolve(mutate(response))
                     } else {
@@ -111,11 +124,8 @@ function prepareProperty(props: any): any {
     }
 }
 
-function prepareData(data: any): any {
-    const d
-        = !data ? {}
-            : typeof data === "function" ? data()
-                : data
+function prepareData(this: any, data: any): any {
+    const d = unwrap(this, data)
     if (d.child) throw Error("Data 'child' is preserved")
     d.child = "loading"
     return d

@@ -2,6 +2,14 @@ import Vue from 'vue';
 
 const alwaysTrue = function () { return true; };
 const noop = function () { };
+function unwrap(thisRef, target) {
+    if (typeof target === "function") {
+        return target.call(thisRef);
+    }
+    else {
+        return target;
+    }
+}
 class Logger {
     constructor(condition) {
         this.condition = condition;
@@ -75,29 +83,23 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
             failed: resourceInfoParam[key]["failed"] || noop,
         };
     }
-    const urls = {};
-    for (let key in resourceInfo) {
-        urls[key] = resourceInfo[key].url;
-    }
-    const resources = {};
-    for (let key in resourceInfo) {
-        resources[key] = null;
-    }
-    let watch = null;
+    const data = function () {
+        const urls = {};
+        for (let key in resourceInfo) {
+            urls[key] = unwrap(this, resourceInfo[key].url);
+        }
+        const resources = {};
+        for (let key in resourceInfo) {
+            resources[key] = null;
+        }
+        return {
+            url: urls,
+            resource: resources
+        };
+    };
     const watchTarget = Object.keys(resourceInfo).filter(key => resourceInfo[key].refetch);
     if (watchTarget.length > 0) {
-        watch = {
-            url: {
-                handler(newValue, oldValue) {
-                    for (let key in newValue) {
-                        if (newValue[key] !== oldValue[key] && watchTarget.indexOf(key) >= 0) {
-                            this.load(key);
-                        }
-                    }
-                },
-                deep: true
-            },
-        };
+        
     }
     return Vue.extend({
         name: "ResourceComponent",
@@ -108,11 +110,7 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
             }
             return h(wrappedComponent, { props });
         },
-        data: () => ({
-            url: urls,
-            resource: resources
-        }),
-        watch,
+        data,
         mounted() {
             for (let key in resourceInfo) {
                 this.load(key);
@@ -121,7 +119,15 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
         methods: {
             load(key) {
                 this.$children[0].$resourceDelegate(resourceInfo[key]["beforeLoad"]);
-                Promise.resolve(network(resourceInfo[key].url)).then(response => {
+                const url = this.url[key];
+                if (!url) {
+                    logger.log("URL is not defined.");
+                    return;
+                }
+                else {
+                    logger.log("Fetch URL: %s", url);
+                }
+                Promise.resolve(network(url)).then(response => {
                     if (validate(response)) {
                         return Promise.resolve(mutate(response));
                     }
@@ -166,9 +172,7 @@ function prepareProperty(props) {
     }
 }
 function prepareData(data) {
-    const d = !data ? {}
-        : typeof data === "function" ? data()
-            : data;
+    const d = unwrap(this, data);
     if (d.child)
         throw Error("Data 'child' is preserved");
     d.child = "loading";
