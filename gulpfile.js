@@ -2,7 +2,7 @@ const gulp = require("gulp")
 const rollup = require("rollup")
 const rollupAlias = require("rollup-plugin-alias")
 const rollupNodeResolve = require("rollup-plugin-node-resolve")
-const rollupTypescript = require("rollup-plugin-typescript")
+const rollupTypescript = require("rollup-plugin-typescript2")
 const rollupReplace = require("rollup-plugin-replace")
 const rimraf = require("rimraf")
 const karma = require("karma")
@@ -33,7 +33,7 @@ gulp.task("rollup", () => {
     return rollup.rollup({
         input: `${config.srcDir}/vue-yar.ts`,
         plugins: [
-            rollupTypescript,
+            rollupTypescript(),
             rollupAlias({
                 // vue: "node_modules/vue/dist/vue.esm.js"
             })
@@ -52,7 +52,7 @@ gulp.task("rollup-test", ["rollup"], () => {
     return rollup.rollup({
         input: `${config.srcTestDir}/sample.js`,
         plugins: [
-            rollupTypescript,
+            rollupTypescript(),
             rollupAlias({
                 vue: "node_modules/vue/dist/vue.esm.js"
             }),

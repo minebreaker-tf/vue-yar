@@ -4,15 +4,16 @@
         "moduleResolution": "node",
         "target": "es6",
         "strict": true,
-        "alwaysStrict": true,
-        "noImplicitAny": true,
+        // "alwaysStrict": true,
+        "noImplicitAny": false,
         "sourceMap": true,
         "strictNullChecks": true,
         "removeComments": true
     },
     "include": [
         "src/**/*.ts",
-        "src/**/*.js"
+        "src/**/*.js",
+        "types/**/*.d.ts"
     ],
     "exclude": [
         "node_modules"
