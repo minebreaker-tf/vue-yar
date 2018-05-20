@@ -2,14 +2,15 @@ import Vue from "vue"
 import { createOptions } from "./options"
 import { wrap, createResource } from "./resource";
 import { logger } from "./utils";
+import VueYar from "../types/vue-yar"
 
-const VueYar = {
+const VueYarObject: VueYar = {
 
-    install: function (Vue, options) {
+    install: function (VueC, options) {
 
         const actualOptions = createOptions(options)
 
-        Vue.withResource = function (wrappedComponentOptions, resourceOptions) {
+        VueC.withResource = function (wrappedComponentOptions, resourceOptions) {
             return wrap(wrappedComponentOptions, actualOptions, resourceOptions)
         }
 
@@ -18,7 +19,7 @@ const VueYar = {
         }
 
         // Necessary to acquire "this"
-        Vue.prototype.$resourceDelegate = function (f, ...arg) {
+        Vue.prototype.$resourceDelegate = function (f: Function, ...arg: Array<any>) {
             logger.log("delegating")
             if (f) {
                 f.call(this, ...arg)
@@ -27,9 +28,7 @@ const VueYar = {
     }
 }
 
-if (Vue) {
-    Vue.use(VueYar)
-}
+Vue.use(VueYarObject)
 
 //noinspection JSUnusedGlobalSymbols
-export default VueYar
+export default VueYarObject

@@ -1,30 +1,42 @@
 import Vue, { ComponentOptions, PluginObject } from "vue"
 
-export default interface VueYar extends PluginObject<VueYarOptions?> { }
+export default interface VueYar extends PluginObject<VueYarOptions> { }
 
 export interface VueYarOptions {
-    network?: (string) => any,
-    validate?: (any) => boolean
-    mutate?: (any) => any
+    network?: (url: string) => any,
+    validate?: (response: any) => boolean
+    mutate?: (response: any) => any
+}
+
+export interface CheckedVueYarOptions {
+    network: (url: string) => any,
+    validate: (response: any) => boolean
+    mutate: (response: any) => any
+}
+
+export interface ResourceOptionValue {
+    url: string
+    refetch?: boolean
+    validate?: (response: any) => boolean
+    beforeLoad?: () => void
+    loaded?: () => void
+    failed?: (e: any) => void
 }
 
 export interface ResourceOptions {
-    url: string
-    refetch?: boolean
-    validate?: (any) => boolean
-    beforeLoad?: () => void
-    loaded?: () => void
-    failed?: (any) => void
+    [key: string]: ResourceOptionValue
 }
 
-export interface ResourceComponentOptions extends ComponentOptions {
+export interface ResourceComponentOptions {
     url: string
     template: ResourceTemplateSet
     refetch?: boolean
-    validate?: (any) => boolean
+    validate?: (response: any) => boolean
     beforeLoad?: () => void
     loaded?: () => void
-    failed?: (any?) => void
+    failed?: (response?: any) => void
+
+    [other: string]: any
 }
 
 export interface ResourceTemplateSet {
@@ -35,7 +47,11 @@ export interface ResourceTemplateSet {
 
 declare module "vue/types/vue" {
     interface VueConstructor<V extends Vue = Vue> {
-        withResource(componentOptions: ComponentOptions, resourceOptions: ResourceOptions): ComponentOptions
-        resource(resourceComponentOptions: ResourceComponentOptions): ComponentOptions
+        withResource(componentOptions: ComponentOptions<Vue>, resourceOptions: ResourceOptions): ComponentOptions<Vue>
+        resource(resourceComponentOptions: ResourceComponentOptions): ComponentOptions<Vue>
+    }
+
+    interface Vue {
+        $resourceDelegate: Function
     }
 }

@@ -1,4 +1,5 @@
 import { logger } from "./utils"
+import { VueYarOptions, CheckedVueYarOptions } from "../types/vue-yar";
 
 /**
  * Check and inject default values if necessary.
@@ -6,7 +7,7 @@ import { logger } from "./utils"
  * @param {Object} options vue-yar options specified by user
  * @returns Validated options
  */
-export function createOptions(options) {
+export function createOptions(options: VueYarOptions | undefined): CheckedVueYarOptions {
 
     if (!options) {
         options = {}
@@ -19,7 +20,7 @@ export function createOptions(options) {
     }
 
     for (let key in options) {
-        if (key !== "network" || key !== "validate" || key !== "mutate") {
+        if (key !== "network" && key !== "validate" && key !== "mutate") {
             logger.log("Unknown option: %s", key)
         }
     }
@@ -34,7 +35,7 @@ export function createOptions(options) {
  * @param {string} url
  * @return {*} response of the request
  */
-function defaultNetwork(url) {
+function defaultNetwork(url: string): Promise<Response> {
     return fetch(url, { method: "GET" })
 }
 
@@ -46,7 +47,7 @@ function defaultNetwork(url) {
  * @param {*} response HTTP Response
  * @returns {boolean} true if the response was successful
  */
-function defaultValidate(response) {
+function defaultValidate(response: Response): boolean {
     return response.status === 200
 }
 
@@ -60,7 +61,7 @@ function defaultValidate(response) {
  * @param {*} response HTTP Response
  * @return {*} The value to bind
  */
-function defaultMutate(response) {
+function defaultMutate(response: Response): Promise<any> {
     logger.log(response.headers.get("Content-Type"))
     if (parseContentType(response.headers.get("Content-Type")) === "application/json") {
         return response.json()
@@ -69,7 +70,11 @@ function defaultMutate(response) {
     }
 }
 
-function parseContentType(contentTypeString) {
+function parseContentType(contentTypeString: string | null) {
+    if (contentTypeString === null) {
+        return ""
+    }
+
     const parts = contentTypeString.split(";")
     if (parts.length > 0) {
         return parts[0].trim()

@@ -4,19 +4,18 @@ export const noop = function () { }
 
 class Logger {
 
-    constructor(condition) {
-        this.condition = condition
-    }
+    constructor(private condition: boolean) { }
 
-    log(...message) {
+    log(...message: Array<any>) {
         if (this.condition) console.log(...message)
     }
 
-    warn(...message) {
+    warn(...message: Array<any>) {
         if (this.condition) console.warn(...message)
     }
 }
 
-const debug = "__DEBUG__"
+declare const process: any
+const debug: boolean = !!"__DEBUG__"
 // const debug = false
 export const logger = new Logger(process.env.NODE_ENV !== "production" && debug)

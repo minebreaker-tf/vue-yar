@@ -1,11 +1,12 @@
-import Vue from "vue";
+import Vue, { ComponentOptions } from "vue";
 import { noop, alwaysTrue, logger } from "./utils";
+import { VueYarOptions, CheckedVueYarOptions, ResourceOptions, ResourceComponentOptions } from "../types/vue-yar";
 
-export function wrap(wrappedComponent, options, resourceInfoParam) {
+export function wrap(wrappedComponent: ComponentOptions<Vue>, options: CheckedVueYarOptions, resourceInfoParam: ResourceOptions): any {
 
     const { network, validate, mutate } = options
 
-    const resourceInfo = {}
+    const resourceInfo: any = {}
     for (let key in resourceInfoParam) {
         resourceInfo[key] = {
             url: resourceInfoParam[key]["url"],
@@ -17,12 +18,12 @@ export function wrap(wrappedComponent, options, resourceInfoParam) {
         }
     }
 
-    const urls = {}
+    const urls: any = {}
     for (let key in resourceInfo) {
         urls[key] = resourceInfo[key].url
     }
 
-    const resources = {}
+    const resources: any = {}
     for (let key in resourceInfo) {
         resources[key] = null
     }
@@ -30,7 +31,7 @@ export function wrap(wrappedComponent, options, resourceInfoParam) {
     return Vue.extend({
         name: "ResourceComponent",
         render(h, ctx) {
-            const props = {}
+            const props: any = {}
             for (let key in this.resource) {
                 props[key] = this.resource[key]
             }
@@ -54,7 +55,7 @@ export function wrap(wrappedComponent, options, resourceInfoParam) {
             }
         },
         methods: {
-            load(key) {
+            load(key: string) {
 
                 this.$children[0].$resourceDelegate(resourceInfo[key]["beforeLoad"])
 
@@ -88,7 +89,7 @@ export function wrap(wrappedComponent, options, resourceInfoParam) {
     })
 }
 
-function prepareProperty(props) {
+function prepareProperty(props: any): any {
     if (props instanceof Array) {
         if (props.indexOf("resource") < 0) throw Error("Property 'resource' is preserved.")
         return props.concat(["resource"])
@@ -100,7 +101,7 @@ function prepareProperty(props) {
     }
 }
 
-function prepareData(data) {
+function prepareData(data: any): any {
     const d
         = !data ? {}
             : typeof data === "function" ? data()
@@ -110,7 +111,7 @@ function prepareData(data) {
     return d
 }
 
-export function createResource(options, rco) {
+export function createResource(options: CheckedVueYarOptions, rco: ResourceComponentOptions): any {
 
     const props = prepareProperty(rco.props)
     const data = prepareData(rco.data)  // Shares data among components
@@ -131,15 +132,15 @@ export function createResource(options, rco) {
         resource: {
             url: rco.url,
             validate: rco.validate,
-            beforeLoad() {
+            beforeLoad(this: any) {
                 this.child = "loading"
                 rco.beforeLoad && rco.beforeLoad()
             },
-            loaded() {
+            loaded(this: any) {
                 this.child = "success"
                 rco.loaded && rco.loaded()
             },
-            failed() {
+            failed(this: any) {
                 this.child = "failed"
                 rco.failed && rco.failed()
             }

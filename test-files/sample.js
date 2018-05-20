@@ -10939,111 +10939,70 @@ function getOuterHTML (el) {
 
 Vue.compile = compileToFunctions;
 
-const alwaysTrue = function () { return true };
-
+const alwaysTrue = function () { return true; };
 const noop$1 = function () { };
-
 class Logger {
-
     constructor(condition) {
         this.condition = condition;
     }
-
     log(...message) {
-        if (this.condition) console.log(...message);
+        if (this.condition)
+            console.log(...message);
     }
-
     warn(...message) {
-        if (this.condition) console.warn(...message);
+        if (this.condition)
+            console.warn(...message);
     }
 }
-
-const debug = "__DEBUG__";
-// const debug = false
+const debug = !!"__DEBUG__";
 const logger = new Logger("development" !== "production" && debug);
 
-/**
- * Check and inject default values if necessary.
- *
- * @param {Object} options vue-yar options specified by user
- * @returns Validated options
- */
 function createOptions(options) {
-
     if (!options) {
         options = {};
     }
-
     const returningOptions = {
         network: options["network"] || defaultNetwork,
         validate: options["validate"] || defaultValidate,
         mutate: options["mutate"] || defaultMutate
     };
-
     for (let key in options) {
-        if (key !== "network" || key !== "validate" || key !== "mutate") {
+        if (key !== "network" && key !== "validate" && key !== "mutate") {
             logger.log("Unknown option: %s", key);
         }
     }
-    return returningOptions
+    return returningOptions;
 }
-
-/**
- * The method to handle HTTP request.
- * The type of the returned object is implementation dependent.
- * Default returns {Promise<Response>}.
- *
- * @param {string} url
- * @return {*} response of the request
- */
 function defaultNetwork(url) {
-    return fetch(url, { method: "GET" })
+    return fetch(url, { method: "GET" });
 }
-
-/**
- * Checks if the HTTP response is successful.
- * The type of the response is depends on "network" function.
- * If it is Promise, it'll be unwrapped.
- *
- * @param {*} response HTTP Response
- * @returns {boolean} true if the response was successful
- */
 function defaultValidate(response) {
-    return response.status === 200
+    return response.status === 200;
 }
-
-/**
- * Mutate function.
- * Maps response object returned by "network" function into the
- * value directly bounded to the vue instance.
- * The type of the response is depends on "network" function.
- * If it is Promise, it'll be unwrapped.
- *
- * @param {*} response HTTP Response
- * @return {*} The value to bind
- */
 function defaultMutate(response) {
     logger.log(response.headers.get("Content-Type"));
     if (parseContentType(response.headers.get("Content-Type")) === "application/json") {
-        return response.json()
-    } else {
-        return response.text()
+        return response.json();
+    }
+    else {
+        return response.text();
     }
 }
-
 function parseContentType(contentTypeString) {
+    if (contentTypeString === null) {
+        return "";
+    }
     const parts = contentTypeString.split(";");
     if (parts.length > 0) {
-        return parts[0].trim()
-    } else {
-        return ""
+        return parts[0].trim();
+    }
+    else {
+        return "";
     }
 }
 
 function wrap(wrappedComponent, options, resourceInfoParam) {
-
     const { network, validate, mutate } = options;
-
     const resourceInfo = {};
     for (let key in resourceInfoParam) {
         resourceInfo[key] = {
@@ -11055,17 +11014,14 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
             failed: resourceInfoParam[key]["failed"] || noop$1,
         };
     }
-
     const urls = {};
     for (let key in resourceInfo) {
         urls[key] = resourceInfo[key].url;
     }
-
     const resources = {};
     for (let key in resourceInfo) {
         resources[key] = null;
     }
-
     return Vue.extend({
         name: "ResourceComponent",
         render(h, ctx) {
@@ -11073,20 +11029,12 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
             for (let key in this.resource) {
                 props[key] = this.resource[key];
             }
-            return h(wrappedComponent, { props })
+            return h(wrappedComponent, { props });
         },
         data: () => ({
             url: urls,
             resource: resources
         }),
-        // watch: {
-        //     url: {
-        //         handler: function() {
-        //
-        //         },
-        //         deep: true
-        //     }
-        // },
         mounted() {
             for (let key in resourceInfo) {
                 this.load(key);
@@ -11094,13 +11042,12 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
         },
         methods: {
             load(key) {
-
                 this.$children[0].$resourceDelegate(resourceInfo[key]["beforeLoad"]);
-
                 Promise.resolve(network(resourceInfo[key].url)).then(response => {
                     if (validate(response)) {
-                        return Promise.resolve(mutate(response))
-                    } else {
+                        return Promise.resolve(mutate(response));
+                    }
+                    else {
                         logger.warn("Global validation failed on key '%s'", key);
                         this.$children[0].$resourceDelegate(resourceInfo[key]["failed"]);
                     }
@@ -11108,11 +11055,10 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
                     if (resourceInfo[key].validate(result)) {
                         this.resource[key] = result;
                         this.$children[0].$resourceDelegate(resourceInfo[key]["loaded"]);
-                    } else {
+                    }
+                    else {
                         logger.warn("Response validation failed on key '%s'", key);
-                        // const i = this.$children[0].$resourceDelegate
-                        // i(resourceInfo[key]["failed"], "Response validation error")  // doesn't work
-                        this.$children[0].$resourceDelegate(resourceInfo[key]["failed"]);  // works
+                        this.$children[0].$resourceDelegate(resourceInfo[key]["failed"]);
                     }
                 }).catch(e => {
                     logger.warn("Unexpected error on '%s'", key);
@@ -11124,36 +11070,35 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
         components: {
             wrappedComponent
         }
-    })
+    });
 }
-
 function prepareProperty(props) {
     if (props instanceof Array) {
-        if (props.indexOf("resource") < 0) throw Error("Property 'resource' is preserved.")
-        return props.concat(["resource"])
-    } else if (props instanceof Object) {
-        if (props.resource) throw Error("Property 'resource' is preserved.")
-        return Object.assign({}, props, { resource: null, default: null })
-    } else {
-        return { resource: null, default: null }
+        if (props.indexOf("resource") < 0)
+            throw Error("Property 'resource' is preserved.");
+        return props.concat(["resource"]);
+    }
+    else if (props instanceof Object) {
+        if (props.resource)
+            throw Error("Property 'resource' is preserved.");
+        return Object.assign({}, props, { resource: null, default: null });
+    }
+    else {
+        return { resource: null, default: null };
     }
 }
-
 function prepareData(data) {
-    const d
-        = !data ? {}
-            : typeof data === "function" ? data()
-                : data;
-    if (d.child) throw Error("Data 'child' is preserved")
+    const d = !data ? {}
+        : typeof data === "function" ? data()
+            : data;
+    if (d.child)
+        throw Error("Data 'child' is preserved");
     d.child = "loading";
-    return d
+    return d;
 }
-
 function createResource(options, rco) {
-
     const props = prepareProperty(rco.props);
-    const data = prepareData(rco.data);  // Shares data among components
-
+    const data = prepareData(rco.data);
     const co = Object.assign({}, rco, {
         name: "ResourceComponentSwitcher",
         props,
@@ -11165,7 +11110,6 @@ function createResource(options, rco) {
             failure: { template: rco.template.failure, props, data: () => data, components: rco.components }
         }
     });
-
     const ro = {
         resource: {
             url: rco.url,
@@ -11184,26 +11128,19 @@ function createResource(options, rco) {
             }
         }
     };
-
-    return wrap(co, options, ro)
+    return wrap(co, options, ro);
 }
 
-const VueYar = {
-
-    install: function (Vue$$1, options) {
-
+const VueYarObject = {
+    install: function (VueC, options) {
         const actualOptions = createOptions(options);
-
-        Vue$$1.withResource = function (wrappedComponentOptions, resourceOptions) {
-            return wrap(wrappedComponentOptions, actualOptions, resourceOptions)
+        VueC.withResource = function (wrappedComponentOptions, resourceOptions) {
+            return wrap(wrappedComponentOptions, actualOptions, resourceOptions);
         };
-
-        Vue$$1.resource = function (resourceComponentOptions) {
-            return createResource(actualOptions, resourceComponentOptions)
+        Vue.resource = function (resourceComponentOptions) {
+            return createResource(actualOptions, resourceComponentOptions);
         };
-
-        // Necessary to acquire "this"
-        Vue$$1.prototype.$resourceDelegate = function (f, ...arg) {
+        Vue.prototype.$resourceDelegate = function (f, ...arg) {
             logger.log("delegating");
             if (f) {
                 f.call(this, ...arg);
@@ -11211,10 +11148,7 @@ const VueYar = {
         };
     }
 };
-
-if (Vue) {
-    Vue.use(VueYar);
-}
+Vue.use(VueYarObject);
 
 const component = Vue.extend({
     props: ["user"],

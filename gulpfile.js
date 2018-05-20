@@ -32,6 +32,9 @@ gulp.task("clean", () => {
 gulp.task("rollup", () => {
     return rollup.rollup({
         input: `${config.srcDir}/vue-yar.ts`,
+        external: [
+            "vue"
+        ],
         plugins: [
             rollupTypescript(),
             rollupAlias({
