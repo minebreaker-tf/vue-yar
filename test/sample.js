@@ -5,18 +5,21 @@ const component = Vue.extend({
     props: ["user"],
     template: `
         <div>
+            <input type="number" v-model="id">
             <p v-if="error">Error</p>
             <p v-else-if="user">ID: {{ user.id }}, Name: {{ user.name }}</p>
             <p v-else>Loading...</p>
         </div>`,
     data: () => ({
+        id: 1,
         error: ""
     })
 })
 
 const resourceComponent = Vue.withResource(component, {
     user: {
-        url: "http://localhost:8000/api/user/1",
+        url: `http://localhost:8000/api/user/${this.id}`,
+        refetch: true,
         validate(r) {
             console.log("validate: %s", r)
             return true

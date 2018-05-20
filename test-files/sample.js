@@ -11022,6 +11022,22 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
     for (let key in resourceInfo) {
         resources[key] = null;
     }
+    let watch = null;
+    const watchTarget = Object.keys(resourceInfo).filter(key => resourceInfo[key].refetch);
+    if (watchTarget.length > 0) {
+        watch = {
+            url: {
+                handler(newValue, oldValue) {
+                    for (let key in newValue) {
+                        if (newValue[key] !== oldValue[key] && watchTarget.indexOf(key) >= 0) {
+                            this.load(key);
+                        }
+                    }
+                },
+                deep: true
+            },
+        };
+    }
     return Vue.extend({
         name: "ResourceComponent",
         render(h, ctx) {
@@ -11035,6 +11051,7 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
             url: urls,
             resource: resources
         }),
+        watch,
         mounted() {
             for (let key in resourceInfo) {
                 this.load(key);
@@ -11154,33 +11171,15 @@ const component = Vue.extend({
     props: ["user"],
     template: `
         <div>
+            <input type="number" v-model="id">
             <p v-if="error">Error</p>
             <p v-else-if="user">ID: {{ user.id }}, Name: {{ user.name }}</p>
             <p v-else>Loading...</p>
         </div>`,
     data: () => ({
+        id: 1,
         error: ""
     })
-});
-
-const resourceComponent = Vue.withResource(component, {
-    user: {
-        url: "http://localhost:8000/api/user/1",
-        validate(r) {
-            console.log("validate: %s", r);
-            return true
-        },
-        beforeLoad() {
-            console.log("beforeLoad");
-        },
-        loaded() {
-            console.log("loaded");
-        },
-        failed(e) {
-            console.log("failed on ro", e);
-            this.error = "failed hook";
-        }
-    }
 });
 
 // const resourceComponent = Vue.resource({
@@ -11196,7 +11195,26 @@ new Vue({
     el: "#app",
     template: `<resource-component></resource-component>`,
     components: {
-        resourceComponent
+        resourceComponent: Vue.withResource(component, {
+            user: {
+                url: `http://localhost:8000/api/user/${undefined.id}`,
+                refetch: true,
+                validate(r) {
+                    console.log("validate: %s", r);
+                    return true
+                },
+                beforeLoad() {
+                    console.log("beforeLoad");
+                },
+                loaded() {
+                    console.log("loaded");
+                },
+                failed(e) {
+                    console.log("failed on ro", e);
+                    this.error = "failed hook";
+                }
+            }
+        })
     }
 });
 

@@ -83,6 +83,22 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
     for (let key in resourceInfo) {
         resources[key] = null;
     }
+    let watch = null;
+    const watchTarget = Object.keys(resourceInfo).filter(key => resourceInfo[key].refetch);
+    if (watchTarget.length > 0) {
+        watch = {
+            url: {
+                handler(newValue, oldValue) {
+                    for (let key in newValue) {
+                        if (newValue[key] !== oldValue[key] && watchTarget.indexOf(key) >= 0) {
+                            this.load(key);
+                        }
+                    }
+                },
+                deep: true
+            },
+        };
+    }
     return Vue.extend({
         name: "ResourceComponent",
         render(h, ctx) {
@@ -96,6 +112,7 @@ function wrap(wrappedComponent, options, resourceInfoParam) {
             url: urls,
             resource: resources
         }),
+        watch,
         mounted() {
             for (let key in resourceInfo) {
                 this.load(key);
