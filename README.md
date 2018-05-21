@@ -3,7 +3,7 @@
 Yet another resource fetching library for Vue
 
 
-## Simplified resource component
+## Simple resource component
 
 ```javascript
 const component = Vue.resource({
@@ -11,7 +11,7 @@ const component = Vue.resource({
     // Resource location
     url: `http://localhost:8080/api/user/${this.id}`,
     template: {
-        success: `<p>ID: {{ $resource.id }}, Name: {{ $resource.name }}</p>`,
+        success: `<p>ID: {{ resource.id }}, Name: {{ resource.name }}</p>`,
         loading: `<p>Loading...</p>`,
         failure: `<p>Error</p>`
     },
@@ -28,7 +28,7 @@ const component = Vue.resource({
 })
 ```
 
-## Resource HOC
+## Resource mixin
 
 ```javascript
 const component = Vue.withResource({
