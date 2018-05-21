@@ -50,10 +50,8 @@ export interface ResourceTemplateSet {
 
 declare module "vue/types/vue" {
     interface VueConstructor<V extends Vue = Vue> {
-        // withResource(componentOptions: ComponentOptions<Vue>, resourceOptions: ResourceOptions): ComponentOptions<Vue>
-        // resource(resourceComponentOptions: ResourceComponentOptions): ComponentOptions<Vue>
-        withResource(componentOptions: ComponentOptions<Vue>, resourceOptions: ResourceOptions): any
-        resource(resourceComponentOptions: ResourceComponentOptions): any
+        withResource(componentOptions: ComponentOptions<Vue>, resourceOptions: ResourceOptions): ComponentOptions<Vue>
+        resource(resourceComponentOptions: ResourceComponentOptions): ComponentOptions<Vue>
     }
 
     interface Vue {

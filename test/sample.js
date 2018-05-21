@@ -1,22 +1,7 @@
 import Vue from "vue"
 import VueYar from "../build/rollup/vue-yar"
 
-const component = Vue.extend({
-    props: ["user"],
-    template: `
-        <div>
-            <input type="number" v-model="id">
-            <p v-if="error">Error</p>
-            <p v-else-if="user">ID: {{ user.id }}, Name: {{ user.name }}</p>
-            <p v-else>Loading...</p>
-        </div>`,
-    data: () => ({
-        id: 1,
-        error: ""
-    })
-})
-
-const resourceComponent = Vue.withResource(component, {
+const resource = Vue.withResource({
     user: {
         url() {
             return `http://localhost:8000/api/user/${this.id}`
@@ -31,12 +16,28 @@ const resourceComponent = Vue.withResource(component, {
         },
         loaded() {
             console.log("loaded")
+            this.error = ""
         },
         failed(e) {
             console.log("failed on ro", e)
             this.error = "failed hook"
         }
     }
+})
+
+const resourceComponent = Vue.extend({
+    template: `
+        <div>
+            <input type="number" v-model="id">
+            <p v-if="error">Error</p>
+            <p v-else-if="user">ID: {{ user.id }}, Name: {{ user.name }}</p>
+            <p v-else>Loading...</p>
+        </div>`,
+    data: () => ({
+        id: 1,
+        error: ""
+    }),
+    mixins: [resource]
 })
 
 // const resourceComponent = Vue.resource({
