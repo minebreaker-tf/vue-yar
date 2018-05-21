@@ -109,7 +109,6 @@ function createMixin(options, resourceInfoParam) {
         };
     }
     const mixin = {
-        name: "ResourceComponent",
         data,
         computed: {
             url() {
@@ -167,12 +166,50 @@ function createMixin(options, resourceInfoParam) {
     };
     return mixin;
 }
+function createResourceComponent(options, rco) {
+    const data = Object.assign({}, unwrap(null, rco.data), { child: "loading" });
+    const resource = createMixin(options, {
+        resource: {
+            url: rco.url,
+            refetch: rco.refetch,
+            validate: rco.validate,
+            beforeLoad() {
+                this.child = "loading";
+                rco.beforeLoad && rco.beforeLoad();
+            },
+            loaded() {
+                this.child = "success";
+                rco.loaded && rco.loaded();
+            },
+            failed() {
+                this.child = "failed";
+                rco.failed && rco.failed();
+            }
+        }
+    });
+    const component = Vue.extend({
+        name: rco.name || "ResourceComponentSwitcher",
+        props: rco.props,
+        template: `<keep-alive><component :is="child" :resource="resource"></component></keep-alive>`,
+        data: () => data,
+        components: {
+            success: { template: rco.template.success, props: rco.props, data: () => data, components: rco.components },
+            loading: { template: rco.template.loading, props: rco.props, data: () => data, components: rco.components },
+            failure: { template: rco.template.failure, props: rco.props, data: () => data, components: rco.components }
+        },
+        mixins: [resource]
+    });
+    return component;
+}
 
 const VueYarObject = {
     install: function (Vue$$1, options) {
         const actualOptions = createOptions(options);
         Vue$$1.withResource = function (resourceOptions) {
             return createMixin(actualOptions, resourceOptions);
+        };
+        Vue$$1.resource = function (resourceComponentOptions) {
+            return createResourceComponent(actualOptions, resourceComponentOptions);
         };
     }
 };

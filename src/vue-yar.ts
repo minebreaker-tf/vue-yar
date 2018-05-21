@@ -1,6 +1,6 @@
 import Vue, { ComponentOptions } from "vue"
 import { createOptions } from "./options"
-import { createMixin } from "./resource"
+import { createMixin, createResourceComponent } from "./resource"
 import { logger } from "./utils";
 import { VueYar, ResourceOptions } from "../types/vue-yar"
 
@@ -14,10 +14,9 @@ const VueYarObject: VueYar = {
             return createMixin(actualOptions, resourceOptions)
         }
 
-        // Vue.resource = function (resourceComponentOptions) {
-        //     return createResource(actualOptions, resourceComponentOptions)
-        // }
-
+        Vue.resource = function (resourceComponentOptions) {
+            return createResourceComponent(actualOptions, resourceComponentOptions)
+        }
     }
 }
 

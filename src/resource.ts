@@ -1,5 +1,5 @@
 import Vue, { ComponentOptions } from "vue"
-import { CheckedVueYarOptions, ResourceOptions } from "../types/vue-yar";
+import { CheckedVueYarOptions, ResourceOptions, ResourceComponentOptions } from "../types/vue-yar";
 import { alwaysTrue, noop, unwrap, logger } from "./utils";
 
 export function createMixin(options: CheckedVueYarOptions, resourceInfoParam: ResourceOptions) {
@@ -47,7 +47,6 @@ export function createMixin(options: CheckedVueYarOptions, resourceInfoParam: Re
     }
 
     const mixin = {
-        name: "ResourceComponent",
         data,
         computed: {
             url() {
@@ -105,4 +104,44 @@ export function createMixin(options: CheckedVueYarOptions, resourceInfoParam: Re
     }
 
     return mixin
+}
+
+export function createResourceComponent(options: CheckedVueYarOptions, rco: ResourceComponentOptions) {
+
+    const data = Object.assign({}, unwrap(null, rco.data), { child: "loading" })
+
+    const resource = createMixin(options, {
+        resource: {
+            url: rco.url,
+            refetch: rco.refetch,
+            validate: rco.validate,
+            beforeLoad(this: any) {
+                this.child = "loading"
+                rco.beforeLoad && rco.beforeLoad()
+            },
+            loaded(this: any) {
+                this.child = "success"
+                rco.loaded && rco.loaded()
+            },
+            failed(this: any) {
+                this.child = "failed"
+                rco.failed && rco.failed()
+            }
+        }
+    })
+
+    const component = Vue.extend({
+        name: rco.name || "ResourceComponentSwitcher",
+        props: rco.props,
+        template: `<keep-alive><component :is="child" :resource="resource"></component></keep-alive>`,
+        data: () => data,
+        components: {
+            success: { template: rco.template.success, props: rco.props, data: () => data, components: rco.components },
+            loading: { template: rco.template.loading, props: rco.props, data: () => data, components: rco.components },
+            failure: { template: rco.template.failure, props: rco.props, data: () => data, components: rco.components }
+        },
+        mixins: [resource]
+    })
+
+    return component
 }
