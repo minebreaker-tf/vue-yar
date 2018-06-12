@@ -20,7 +20,5 @@ const VueYarObject: VueYar = {
     }
 }
 
-Vue.use(VueYarObject)
-
 //noinspection JSUnusedGlobalSymbols
 export default VueYarObject
