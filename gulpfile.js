@@ -16,6 +16,7 @@ const config = {
     rollupDest: "build/rollup",
     rollupTestDest: "build/rollupTest",
     test: "build/test",
+    sampleDest: "sample",
     distribution: "dist",
     development: true
 }
@@ -74,13 +75,13 @@ gulp.task("rollup-test", ["rollup"], () => {
 
 gulp.task("copy", ["rollup"], () => {
     return gulp.src(`${config.rollupDest}/vue-yar.js`)
-        .pipe(gulp.dest(config.distribution))
+               .pipe(gulp.dest(config.distribution))
 })
 
 gulp.task("copy-sample", ["rollup", "rollup-test"], () => {
     return gulp.src([
         `${config.rollupTestDest}/*.js`
-    ]).pipe(gulp.dest("test-files"))
+    ]).pipe(gulp.dest(config.sampleDest))
 })
 
 // ビルド

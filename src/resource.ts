@@ -1,6 +1,6 @@
-import Vue, { ComponentOptions } from "vue"
-import { CheckedVueYarOptions, ResourceOptions, ResourceComponentOptions } from "../types/vue-yar";
-import { alwaysTrue, noop, unwrap, logger } from "./utils";
+import Vue from "vue"
+import { CheckedVueYarOptions, ResourceComponentOptions, ResourceOptions } from "../types/vue-yar";
+import { alwaysTrue, logger, noop, unwrap } from "./utils";
 
 export function createMixin(options: CheckedVueYarOptions, resourceInfoParam: ResourceOptions) {
 
@@ -124,7 +124,7 @@ export function createResourceComponent(options: CheckedVueYarOptions, rco: Reso
                 rco.loaded && rco.loaded()
             },
             failed(this: any) {
-                this.child = "failed"
+                this.child = "failure"
                 rco.failed && rco.failed()
             }
         }

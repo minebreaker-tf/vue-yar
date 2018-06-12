@@ -7,8 +7,8 @@ app.get("/api/user/:id", (request, response) => {
     const requestedId = request.params.id
 
     const body =
-        requestedId === 1 ? { id: 1, name: "John" } :
-            requestedId === 2 ? { id: 2, name: "Jack" } :
+        requestedId === "1" ? { id: 1, name: "John" } :
+            requestedId === "2" ? { id: 2, name: "Jack" } :
                 null
 
     if (body) {

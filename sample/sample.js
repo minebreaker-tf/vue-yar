@@ -11121,13 +11121,13 @@ function createResourceComponent(options, rco) {
                 rco.loaded && rco.loaded();
             },
             failed() {
-                this.child = "failed";
+                this.child = "failure";
                 rco.failed && rco.failed();
             }
         }
     });
-    const component = Vue.extend({
-        name: rco.name || "ResourceComponentSwitcher",
+    const component = Vue.extend(Object.assign({}, rco, {
+        name: rco.name || "ResourceComponent",
         props: rco.props,
         template: `<keep-alive><component :is="child" :resource="resource"></component></keep-alive>`,
         data: () => data,
@@ -11137,7 +11137,7 @@ function createResourceComponent(options, rco) {
             failure: { template: rco.template.failure, props: rco.props, data: () => data, components: rco.components }
         },
         mixins: [resource]
-    });
+    }));
     return component;
 }
 
@@ -11154,10 +11154,12 @@ const VueYarObject = {
 };
 Vue.use(VueYarObject);
 
+Vue.use(VueYarObject);
+
 // const resource = Vue.withResource({
 //     user: {
 //         url() {
-//             return `http://localhost:8000/api/user/${this.id}`
+//             return `/api/user/${this.id}`
 //         },
 //         refetch: true,
 //         validate(r) {
@@ -11194,8 +11196,11 @@ Vue.use(VueYarObject);
 // })
 
 const resourceComponent = Vue.resource({
-    name: "foo",
-    url: "http://localhost:8000/api/user/1",
+    // url: "/api/user/1",
+    props: ["id"],
+    url() {
+        return `/api/user/${this.id}`
+    },
     template: {
         success: `<div>ID: {{ resource.id }}, Name: {{ resource.name }}</div>`,
         failure: `<div>Error</div>`,
@@ -11203,11 +11208,25 @@ const resourceComponent = Vue.resource({
     }
 });
 
+const yourComponent = Vue.extend({
+    template: `
+        <div>
+            <input type="number" v-model="id">
+            <user :id="id"></user>
+        </div>`,
+    data: () => ({
+        id: 1
+    }),
+    components: {
+        user: resourceComponent
+    }
+});
+
 new Vue({
     el: "#app",
-    template: `<resource-component></resource-component>`,
+    template: `<your-component></your-component>`,
     components: {
-        resourceComponent
+        yourComponent
     }
 });
 

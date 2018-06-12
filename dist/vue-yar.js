@@ -182,7 +182,7 @@ function createResourceComponent(options, rco) {
                 rco.loaded && rco.loaded();
             },
             failed() {
-                this.child = "failed";
+                this.child = "failure";
                 rco.failed && rco.failed();
             }
         }

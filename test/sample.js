@@ -43,7 +43,11 @@ Vue.use(VueYar)
 // })
 
 const resourceComponent = Vue.resource({
-    url: "/api/user/1",
+    // url: "/api/user/1",
+    props: ["id"],
+    url() {
+        return `/api/user/${this.id}`
+    },
     template: {
         success: `<div>ID: {{ resource.id }}, Name: {{ resource.name }}</div>`,
         failure: `<div>Error</div>`,
@@ -51,10 +55,24 @@ const resourceComponent = Vue.resource({
     }
 })
 
+const yourComponent = Vue.extend({
+    template: `
+        <div>
+            <input type="number" v-model="id">
+            <user :id="id"></user>
+        </div>`,
+    data: () => ({
+        id: 1
+    }),
+    components: {
+        user: resourceComponent
+    }
+})
+
 new Vue({
     el: "#app",
-    template: `<resource-component></resource-component>`,
+    template: `<your-component></your-component>`,
     components: {
-        resourceComponent
+        yourComponent
     }
 })
