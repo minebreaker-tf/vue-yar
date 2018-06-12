@@ -1,53 +1,56 @@
 import Vue from "vue"
 import VueYar from "../build/rollup/vue-yar"
 
+// Load the plugin
 Vue.use(VueYar)
 
-// const resource = Vue.withResource({
-//     user: {
-//         url() {
-//             return `/api/user/${this.id}`
-//         },
-//         refetch: true,
-//         validate(r) {
-//             console.log("validate: %s", r)
-//             return true
-//         },
-//         beforeLoad() {
-//             console.log("beforeLoad")
-//         },
-//         loaded() {
-//             console.log("loaded")
-//             this.error = ""
-//         },
-//         failed(e) {
-//             console.log("failed on ro", e)
-//             this.error = "failed hook"
-//         }
-//     }
-// })
+// Resource Mixin
 
-// const resourceComponent = Vue.extend({
-//     template: `
-//         <div>
-//             <input type="number" v-model="id">
-//             <p v-if="error">Error</p>
-//             <p v-else-if="user">ID: {{ user.id }}, Name: {{ user.name }}</p>
-//             <p v-else>Loading...</p>
-//         </div>`,
-//     data: () => ({
-//         id: 1,
-//         error: ""
-//     }),
-//     mixins: [resource]
-// })
+const resourceMixin = Vue.withResource({
+    user: {
+        url() {
+            return `/api/user/${this.id}`
+        },
+        refetch: true,
+        validate(r) {
+            console.log("validate: %s", r)
+            return true
+        },
+        beforeLoad() {
+            console.log("beforeLoad")
+        },
+        loaded() {
+            console.log("loaded")
+            this.error = ""
+        },
+        failed(e) {
+            console.log("failed on ro", e)
+            this.error = "failed hook"
+        }
+    }
+})
+
+const yourComponent1 = Vue.extend({
+    template: `
+        <div>
+            <input type="number" v-model="id">
+            <p v-if="error">Error</p>
+            <p v-else-if="user">ID: {{ user.id }}, Name: {{ user.name }}</p>
+            <p v-else>Loading...</p>
+        </div>`,
+    data: () => ({
+        id: 1,
+        error: ""
+    }),
+    mixins: [resourceMixin]
+})
 
 const resourceComponent = Vue.resource({
-    // url: "/api/user/1",
     props: ["id"],
     url() {
         return `/api/user/${this.id}`
     },
+    refetch: true,
     template: {
         success: `<div>ID: {{ resource.id }}, Name: {{ resource.name }}</div>`,
         failure: `<div>Error</div>`,
@@ -55,7 +58,7 @@ const resourceComponent = Vue.resource({
     }
 })
 
-const yourComponent = Vue.extend({
+const yourComponent2 = Vue.extend({
     template: `
         <div>
             <input type="number" v-model="id">
@@ -71,8 +74,13 @@ const yourComponent = Vue.extend({
 
 new Vue({
     el: "#app",
-    template: `<your-component></your-component>`,
+    template: `
+        <div>
+            <your-component-1></your-component-1>
+            <your-component-2></your-component-2>
+        </div>`,
     components: {
-        yourComponent
+        yourComponent1,
+        yourComponent2
     }
 })

@@ -6,6 +6,19 @@ Yet another resource fetching library for Vue
 * Fluent & Intuitive
 * Validation hook
 
+```javascript
+const resourceComponent = Vue.resource({
+    url: `/your/api/`,
+    template: {
+        success: `<div>Fetched object is: {{ resource }}</div>`,
+        failure: `<div>Error</div>`,
+        loading: `<div>Loading...</div>`
+    }
+})
+```
+
+A sample file is found in `test/sample.js`.
+
 
 ## Simple resource component
 
@@ -13,6 +26,8 @@ Yet another resource fetching library for Vue
 const component = Vue.resource({
     // Resource location
     url: `/api/user/${this.id}`,
+    // Refetch the resource on change. If true, url must be function.
+    refetch: false,
     // Can access to the fetched object via `this.resource`.
     template: {
         // Rendered if the fetch was successful
@@ -41,6 +56,7 @@ const component = Vue.resource({
 const resource = Vue.withResource({
     user: {
         url: `http://localhost:8080/api/user/${this.id}`,
+        refetch: false,
         validate: response => {
             return response.id && response.name
         },
@@ -67,6 +83,7 @@ const component = Vue.component({
 })
 ```
 
+
 ## Options
 
 ```javascript
@@ -88,4 +105,5 @@ const component = Vue.component({
 ## TODO
 
 * Add unit tests
+* Documentations
 * POST request
