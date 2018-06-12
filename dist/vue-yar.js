@@ -213,7 +213,6 @@ const VueYarObject = {
         };
     }
 };
-Vue.use(VueYarObject);
 
 export default VueYarObject;
 //# sourceMappingURL=vue-yar.js.map

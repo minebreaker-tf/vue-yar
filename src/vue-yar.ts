@@ -1,8 +1,6 @@
-import Vue, { ComponentOptions } from "vue"
 import { createOptions } from "./options"
 import { createMixin, createResourceComponent } from "./resource"
-import { logger } from "./utils";
-import { VueYar, ResourceOptions } from "../types/vue-yar"
+import { ResourceOptions, VueYar } from "../types/vue-yar"
 
 const VueYarObject: VueYar = {
 

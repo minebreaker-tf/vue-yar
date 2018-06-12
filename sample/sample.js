@@ -11152,7 +11152,6 @@ const VueYarObject = {
         };
     }
 };
-Vue.use(VueYarObject);
 
 Vue.use(VueYarObject);
 
