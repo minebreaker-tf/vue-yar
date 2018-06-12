@@ -14,6 +14,12 @@ const resourceMixin = Vue.withResource({
         refetch: true,
         validate(r) {
             return r.id && r.name
+        },
+        loaded() {
+            this.error = null
+        },
+        failed() {
+            this.error = "Error"
         }
     }
 })
@@ -32,6 +38,9 @@ const yourComponent1 = Vue.extend({
     }),
     mixins: [resourceMixin]
 })
+
+
+// Resource Component
 
 const resourceComponent = Vue.resource({
     props: ["id"],
