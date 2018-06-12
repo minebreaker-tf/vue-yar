@@ -13,19 +13,7 @@ const resourceMixin = Vue.withResource({
         },
         refetch: true,
         validate(r) {
-            console.log("validate: %s", r)
-            return true
-        },
-        beforeLoad() {
-            console.log("beforeLoad")
-        },
-        loaded() {
-            console.log("loaded")
-            this.error = ""
-        },
-        failed(e) {
-            console.log("failed on ro", e)
-            this.error = "failed hook"
+            return r.id && r.name
         }
     }
 })
