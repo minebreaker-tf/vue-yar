@@ -11126,8 +11126,8 @@ function createResourceComponent(options, rco) {
             }
         }
     });
-    const component = Vue.extend(Object.assign({}, rco, {
-        name: rco.name || "ResourceComponent",
+    const component = Vue.extend({
+        name: rco.name || "ResourceComponentSwitcher",
         props: rco.props,
         template: `<keep-alive><component :is="child" :resource="resource"></component></keep-alive>`,
         data: () => data,
@@ -11137,7 +11137,7 @@ function createResourceComponent(options, rco) {
             failure: { template: rco.template.failure, props: rco.props, data: () => data, components: rco.components }
         },
         mixins: [resource]
-    }));
+    });
     return component;
 }
 
@@ -11154,12 +11154,10 @@ const VueYarObject = {
 };
 Vue.use(VueYarObject);
 
-Vue.use(VueYarObject);
-
 // const resource = Vue.withResource({
 //     user: {
 //         url() {
-//             return `/api/user/${this.id}`
+//             return `http://localhost:8000/api/user/${this.id}`
 //         },
 //         refetch: true,
 //         validate(r) {
@@ -11196,7 +11194,8 @@ Vue.use(VueYarObject);
 // })
 
 const resourceComponent = Vue.resource({
-    url: "/api/user/1",
+    name: "foo",
+    url: "http://localhost:8000/api/user/1",
     template: {
         success: `<div>ID: {{ resource.id }}, Name: {{ resource.name }}</div>`,
         failure: `<div>Error</div>`,

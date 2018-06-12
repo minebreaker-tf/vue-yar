@@ -7,7 +7,7 @@
         "build": "gulp build",
         "test": "gulp test",
         "clean": "gulp clean",
-        "server": "node test-files/server.js"
+        "server": "node sample/server.js"
     },
     "devDependencies": {
         "@types/chai": "^4.1.2",

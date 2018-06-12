@@ -187,8 +187,8 @@ function createResourceComponent(options, rco) {
             }
         }
     });
-    const component = Vue.extend({
-        name: rco.name || "ResourceComponentSwitcher",
+    const component = Vue.extend(Object.assign({}, rco, {
+        name: rco.name || "ResourceComponent",
         props: rco.props,
         template: `<keep-alive><component :is="child" :resource="resource"></component></keep-alive>`,
         data: () => data,
@@ -198,7 +198,7 @@ function createResourceComponent(options, rco) {
             failure: { template: rco.template.failure, props: rco.props, data: () => data, components: rco.components }
         },
         mixins: [resource]
-    });
+    }));
     return component;
 }
 

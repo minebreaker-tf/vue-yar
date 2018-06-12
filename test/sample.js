@@ -1,10 +1,12 @@
 import Vue from "vue"
 import VueYar from "../build/rollup/vue-yar"
 
+Vue.use(VueYar)
+
 // const resource = Vue.withResource({
 //     user: {
 //         url() {
-//             return `http://localhost:8000/api/user/${this.id}`
+//             return `/api/user/${this.id}`
 //         },
 //         refetch: true,
 //         validate(r) {
@@ -41,7 +43,7 @@ import VueYar from "../build/rollup/vue-yar"
 // })
 
 const resourceComponent = Vue.resource({
-    url: "http://localhost:8000/api/user/1",
+    url: "/api/user/1",
     template: {
         success: `<div>ID: {{ resource.id }}, Name: {{ resource.name }}</div>`,
         failure: `<div>Error</div>`,

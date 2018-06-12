@@ -3,7 +3,8 @@
 Yet another resource fetching library for Vue
 
 * Declarative
-* Fluent
+* Fluent & Intuitive
+* Validation hook
 
 
 ## Simple resource component
@@ -11,7 +12,7 @@ Yet another resource fetching library for Vue
 ```javascript
 const component = Vue.resource({
     // Resource location
-    url: `http://localhost:8080/api/user/${this.id}`,
+    url: `/api/user/${this.id}`,
     // Can access to the fetched object via `this.resource`.
     template: {
         // Rendered if the fetch was successful

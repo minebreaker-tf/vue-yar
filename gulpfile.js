@@ -77,15 +77,15 @@ gulp.task("copy", ["rollup"], () => {
         .pipe(gulp.dest(config.distribution))
 })
 
-gulp.task("copy-test", ["rollup", "rollup-test"], () => {
+gulp.task("copy-sample", ["rollup", "rollup-test"], () => {
     return gulp.src([
         `${config.rollupTestDest}/*.js`
     ]).pipe(gulp.dest("test-files"))
 })
 
 // ビルド
-gulp.task("assemble", ["rollup", "copy", "copy-test"])
-gulp.task("build", ["rollup", "rollup-test", "copy", "copy-test"])
+gulp.task("assemble", ["rollup", "copy"])
+gulp.task("build", ["rollup", "rollup-test", "copy", "copy-sample"])
 gulp.task("default", ["build"])
 
 gulp.doneCallback = (error) => {
