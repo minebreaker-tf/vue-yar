@@ -1,7 +1,6 @@
 const gulp = require("gulp")
 const rollup = require("rollup")
 const rollupAlias = require("rollup-plugin-alias")
-const rollupNodeResolve = require("rollup-plugin-node-resolve")
 const rollupTypescript = require("rollup-plugin-typescript2")
 const rollupReplace = require("rollup-plugin-replace")
 const rimraf = require("rimraf")
@@ -37,10 +36,7 @@ gulp.task("rollup", () => {
             "vue"
         ],
         plugins: [
-            rollupTypescript(),
-            rollupAlias({
-                // vue: "node_modules/vue/dist/vue.esm.js"
-            })
+            rollupTypescript()
         ]
     }).then(bundle =>
         bundle.write({
@@ -52,7 +48,7 @@ gulp.task("rollup", () => {
 })
 
 // テストファイル rollup
-gulp.task("rollup-test", ["rollup"], () => {
+gulp.task("rollup-sample", ["rollup"], () => {
     return rollup.rollup({
         input: `${config.srcTestDir}/sample.js`,
         plugins: [
@@ -61,7 +57,6 @@ gulp.task("rollup-test", ["rollup"], () => {
                 vue: "node_modules/vue/dist/vue.esm.js"
             }),
             rollupReplace({ "process.env.NODE_ENV": JSON.stringify("development") })
-            // rollupNodeResolve()
         ]
     }).then(bundle => {
         return bundle.write({
@@ -73,12 +68,45 @@ gulp.task("rollup-test", ["rollup"], () => {
     })
 })
 
+gulp.task("rollup-test", () => {
+    return rollup.rollup({
+        input: `${config.srcTestDir}/test-all.ts`,
+        plugins: [
+            rollupTypescript(),
+            rollupAlias({
+                vue: "node_modules/vue/dist/vue.esm.js"
+            }),
+            rollupReplace({ "process.env.NODE_ENV": JSON.stringify("development") })
+        ]
+    }).then(bundle => {
+        return bundle.write({
+            file: `${config.rollupTestDest}/test-all.js`,
+            format: "iife",
+            name: "test",
+            sourcemap: config.development
+        })
+    })
+})
+
+gulp.task("test", ["rollup-test"], callback => {
+    new karma.Server({
+        configFile: `${__dirname}/karma.conf.js`,
+        singleRun: true
+    }, result => {
+        if (result === 0) {
+            callback()
+        } else {
+            throw Error("Test failed: " + result)
+        }
+    }).start()
+})
+
 gulp.task("copy", ["rollup"], () => {
     return gulp.src(`${config.rollupDest}/vue-yar.js`)
                .pipe(gulp.dest(config.distribution))
 })
 
-gulp.task("copy-sample", ["rollup", "rollup-test"], () => {
+gulp.task("copy-sample", ["rollup", "rollup-sample"], () => {
     return gulp.src([
         `${config.rollupTestDest}/*.js`
     ]).pipe(gulp.dest(config.sampleDest))
@@ -86,7 +114,7 @@ gulp.task("copy-sample", ["rollup", "rollup-test"], () => {
 
 // ビルド
 gulp.task("assemble", ["rollup", "copy"])
-gulp.task("build", ["rollup", "rollup-test", "copy", "copy-sample"])
+gulp.task("build", ["rollup", "test", "copy", "copy-sample"])
 gulp.task("default", ["build"])
 
 gulp.doneCallback = (error) => {
