@@ -34,7 +34,7 @@ export function createMixin(options: CheckedVueYarOptions, resourceInfoParam: Re
     if (watchTarget.length > 0) {
         watch = {
             url: {
-                handler(this: any, newValue, oldValue) {
+                handler(this: any, newValue: any, oldValue: any) {
                     for (let key in newValue) {
                         if (newValue[key] !== oldValue[key] && watchTarget.indexOf(key) >= 0) {
                             this.load(key)
@@ -50,7 +50,7 @@ export function createMixin(options: CheckedVueYarOptions, resourceInfoParam: Re
         data,
         computed: {
             url() {
-                const returning = {}
+                const returning: any = {}
                 for (let key in urls) {
                     returning[key] = unwrap(this, urls[key])
                 }
