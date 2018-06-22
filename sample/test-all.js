@@ -11164,5 +11164,151 @@ describe("vue-yar.ts", () => {
     });
 });
 
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at http://www.apache.org/licenses/LICENSE-2.0
+
+THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+MERCHANTABLITY OR NON-INFRINGEMENT.
+
+See the Apache Version 2.0 License for specific language governing permissions
+and limitations under the License.
+***************************************************************************** */
+/* global Reflect, Promise */
+
+
+
+
+
+
+
+
+
+
+
+
+
+function __awaiter(thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+
+const assert$1 = chai.assert;
+describe("options.ts", () => {
+    describe("createOptions", () => {
+        it("should create the option object if no default values are provided", () => {
+            const result = createOptions(undefined);
+            assert$1.hasAllKeys(result, ["network", "validate", "mutate"]);
+            assert$1.isFunction(result.network);
+            assert$1.isFunction(result.validate);
+            assert$1.isFunction(result.mutate);
+        });
+        it("should create the option object with provided values", () => {
+            const network = () => { };
+            const validate = () => true;
+            const mutate = () => { };
+            const result = createOptions({ network, validate, mutate });
+            assert$1.hasAllKeys(result, ["network", "validate", "mutate"]);
+            assert$1.strictEqual(result.network, network);
+            assert$1.strictEqual(result.validate, validate);
+            assert$1.strictEqual(result.mutate, mutate);
+        });
+    });
+    describe("defaultNetwork", () => {
+        it("should fetch web resource and returns the promise of the response", function () {
+            return __awaiter(this, void 0, void 0, function* () {
+                const url = "fetching url";
+                const responseString = "response";
+                window.fetch = (requestedUrl, options) => {
+                    assert$1.strictEqual(url, requestedUrl);
+                    assert$1.strictEqual(options.method, "GET");
+                    return Promise.resolve(new Response(responseString));
+                };
+                const network = createOptions(undefined).network;
+                const result = yield network(url);
+                const resultResponse = yield result.text();
+                assert$1.strictEqual(resultResponse, responseString);
+            });
+        });
+    });
+    describe("defaultValidate", () => {
+        it("should return true if the response code is 200", () => {
+            const response = new Response("response", { status: 200 });
+            const validate = createOptions(undefined).validate;
+            const result = validate(response);
+            assert$1.isTrue(result);
+        });
+        it("should return false if the response code is not 200", () => {
+            const response = new Response("response", { status: 500 });
+            const validate = createOptions(undefined).validate;
+            const result = validate(response);
+            assert$1.isFalse(result);
+        });
+    });
+    describe("defaultMutate", () => {
+        it("should return the promise of the parsed object if the mime type is 'application/json'", function () {
+            return __awaiter(this, void 0, void 0, function* () {
+                const response = new Response(`{"result":true}`, { headers: { "Content-Type": "application/json" } });
+                const mutate = createOptions(undefined).mutate;
+                const result = yield mutate(response);
+                assert$1.isObject(result);
+                assert$1.hasAllKeys(result, ["result"]);
+                assert$1.isTrue(result.result);
+            });
+        });
+        it("should return the promise of the string if the mime type is not 'application/json'", function () {
+            return __awaiter(this, void 0, void 0, function* () {
+                const body = `{"result":true}`;
+                const response = new Response(body, { headers: { "Content-Type": "text/plain" } });
+                const mutate = createOptions(undefined).mutate;
+                const result = yield mutate(response);
+                assert$1.strictEqual(result, body);
+            });
+        });
+    });
+});
+
+const assert$2 = chai.assert;
+describe("utils.ts", () => {
+    describe("alwaysTrue", () => {
+        it("should be a function that returns true", () => {
+            const result = alwaysTrue();
+            assert$2.isFunction(alwaysTrue);
+            assert$2.isTrue(result);
+        });
+    });
+    describe("noop", () => {
+        it("should be a function that returns nothing", () => {
+            const result = noop$1();
+            assert$2.isFunction(noop$1);
+            assert$2.isUndefined(result);
+        });
+    });
+    describe("unwrap", () => {
+        it("should return itself if it is a object", () => {
+            const input = { result: true };
+            const result = unwrap(null, input);
+            assert$2.strictEqual(input, result);
+        });
+        it("should if the parameter is a function return the result of it with provided 'this' reference", () => {
+            const thisObj = { field: true };
+            const input = function () {
+                return { result: this.field };
+            };
+            const result = unwrap(thisObj, input);
+            assert$2.isObject(result);
+            assert$2.isTrue(result.result);
+        });
+    });
+});
+
 }());
 //# sourceMappingURL=test-all.js.map
