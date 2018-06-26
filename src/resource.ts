@@ -14,19 +14,19 @@ export function createMixin(options: CheckedVueYarOptions, resourceInfoParam: Re
             validate: resourceInfoParam[key]["validate"] || alwaysTrue,
             beforeLoad: resourceInfoParam[key]["beforeLoad"] || noop,
             loaded: resourceInfoParam[key]["loaded"] || noop,
-            failed: resourceInfoParam[key]["failed"] || noop,
+            failed: resourceInfoParam[key]["failed"] || noop
         }
     }
 
     const urls: any = {}
-    for (let key in resourceInfo) {
+    Object.keys(resourceInfo).forEach((key: string) => {
         urls[key] = resourceInfo[key].url
-    }
+    })
 
     const resources: any = {}
-    for (let key in resourceInfo) {
-        resources[key] = null
-    }
+    Object.keys(resourceInfo).forEach((key: string) => {
+        resources[key] = null  // Inject keys for reactive parameters
+    })
     const data = () => resources
 
     let watch: any = null
@@ -35,14 +35,14 @@ export function createMixin(options: CheckedVueYarOptions, resourceInfoParam: Re
         watch = {
             url: {
                 handler(this: any, newValue: any, oldValue: any) {
-                    for (let key in newValue) {
+                    Object.keys(newValue).forEach((key: string) => {
                         if (newValue[key] !== oldValue[key] && watchTarget.indexOf(key) >= 0) {
                             this.load(key)
                         }
-                    }
+                    })
                 },
                 deep: true
-            },
+            }
         }
     }
 
@@ -51,17 +51,15 @@ export function createMixin(options: CheckedVueYarOptions, resourceInfoParam: Re
         computed: {
             url() {
                 const returning: any = {}
-                for (let key in urls) {
+                Object.keys(urls).forEach((key: string) => {
                     returning[key] = unwrap(this, urls[key])
-                }
+                })
                 return returning
             }
         },
         watch,
         mounted(this: any) {
-            for (let key in resourceInfo) {
-                this.load(key)
-            }
+            Object.keys(resourceInfo).forEach(this.load)
         },
         methods: {
             load(this: any, key: string) {

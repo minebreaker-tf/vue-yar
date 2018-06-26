@@ -80,17 +80,17 @@ function createMixin(options, resourceInfoParam) {
             validate: resourceInfoParam[key]["validate"] || alwaysTrue,
             beforeLoad: resourceInfoParam[key]["beforeLoad"] || noop,
             loaded: resourceInfoParam[key]["loaded"] || noop,
-            failed: resourceInfoParam[key]["failed"] || noop,
+            failed: resourceInfoParam[key]["failed"] || noop
         };
     }
     const urls = {};
-    for (let key in resourceInfo) {
+    Object.keys(resourceInfo).forEach((key) => {
         urls[key] = resourceInfo[key].url;
-    }
+    });
     const resources = {};
-    for (let key in resourceInfo) {
+    Object.keys(resourceInfo).forEach((key) => {
         resources[key] = null;
-    }
+    });
     const data = () => resources;
     let watch = null;
     const watchTarget = Object.keys(resourceInfo).filter(key => resourceInfo[key].refetch);
@@ -98,14 +98,14 @@ function createMixin(options, resourceInfoParam) {
         watch = {
             url: {
                 handler(newValue, oldValue) {
-                    for (let key in newValue) {
+                    Object.keys(newValue).forEach((key) => {
                         if (newValue[key] !== oldValue[key] && watchTarget.indexOf(key) >= 0) {
                             this.load(key);
                         }
-                    }
+                    });
                 },
                 deep: true
-            },
+            }
         };
     }
     const mixin = {
@@ -113,17 +113,15 @@ function createMixin(options, resourceInfoParam) {
         computed: {
             url() {
                 const returning = {};
-                for (let key in urls) {
+                Object.keys(urls).forEach((key) => {
                     returning[key] = unwrap(this, urls[key]);
-                }
+                });
                 return returning;
             }
         },
         watch,
         mounted() {
-            for (let key in resourceInfo) {
-                this.load(key);
-            }
+            Object.keys(resourceInfo).forEach(this.load);
         },
         methods: {
             load(key) {
