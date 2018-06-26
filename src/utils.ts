@@ -10,6 +10,22 @@ export function unwrap(thisRef: any, target: Function | Object) {
     }
 }
 
+export interface Mappable<T> {
+    [key: string]: T
+}
+
+export function mapObject<T, U>(input: Mappable<T>, mapper: (key: string, value: T) => U): Mappable<U> {
+    return Object.keys(input)
+                 .reduce((result: Mappable<U>, key) => {
+                     result[key] = mapper(key, input[key])
+                     return result
+                 }, {})
+}
+
+export function includes<T>(input: Array<T>, value: T): boolean {
+    return input.indexOf(value) >= 0
+}
+
 class Logger {
 
     constructor(private condition: boolean) { }

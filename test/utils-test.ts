@@ -41,4 +41,31 @@ describe("utils.ts", () => {
             assert.isTrue(result.result)
         })
     })
+
+    describe("collectMapping", () => {
+        it("should map objects into another object", () => {
+            const input = { foo: "abc", bar: "def" }
+            const result = utils.mapObject(input, (key, value) => key + ":" + value)
+
+            assert.deepEqual(result, {
+                foo: "foo:abc",
+                bar: "bar:def"
+            })
+        })
+    })
+
+    describe("include", () => {
+        it("should return true if array contains it", () => {
+            const input = ["foo", "bar", "buz"]
+            const result1 = utils.includes(input, "foo")
+            const result2 = utils.includes(input, "bar")
+            const result3 = utils.includes(input, "buz")
+            const result4 = utils.includes(input, "hoge")
+
+            assert.isTrue(result1)
+            assert.isTrue(result2)
+            assert.isTrue(result3)
+            assert.isFalse(result4)
+        })
+    })
 })

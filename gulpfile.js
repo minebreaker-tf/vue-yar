@@ -108,7 +108,7 @@ gulp.task("copy", ["rollup"], () => {
 
 gulp.task("copy-sample", ["rollup", "rollup-sample"], () => {
     return gulp.src([
-        `${config.rollupTestDest}/*.js`
+        `${config.rollupTestDest}/sample.js`
     ]).pipe(gulp.dest(config.sampleDest))
 })
 

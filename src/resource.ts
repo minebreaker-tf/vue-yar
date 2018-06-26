@@ -1,6 +1,6 @@
 import Vue from "vue"
 import { CheckedVueYarOptions, ResourceComponentOptions, ResourceOptions } from "../types/vue-yar";
-import { alwaysTrue, logger, noop, unwrap } from "./utils";
+import { alwaysTrue, includes, logger, mapObject, noop, unwrap } from "./utils";
 
 export function createMixin(options: CheckedVueYarOptions, resourceInfoParam: ResourceOptions) {
 
@@ -18,43 +18,28 @@ export function createMixin(options: CheckedVueYarOptions, resourceInfoParam: Re
         }
     }
 
-    const urls: any = {}
-    Object.keys(resourceInfo).forEach((key: string) => {
-        urls[key] = resourceInfo[key].url
-    })
+    const urls = mapObject(resourceInfo, (_, value: any) => value.url)
+    const resources = mapObject(resourceInfo, () => null)  // Inject keys with null for reactive parameters
 
-    const resources: any = {}
-    Object.keys(resourceInfo).forEach((key: string) => {
-        resources[key] = null  // Inject keys for reactive parameters
-    })
-    const data = () => resources
-
-    let watch: any = null
     const watchTarget = Object.keys(resourceInfo).filter(key => resourceInfo[key].refetch)
-    if (watchTarget.length > 0) {
-        watch = {
-            url: {
-                handler(this: any, newValue: any, oldValue: any) {
-                    Object.keys(newValue).forEach((key: string) => {
-                        if (newValue[key] !== oldValue[key] && watchTarget.indexOf(key) >= 0) {
-                            this.load(key)
-                        }
-                    })
-                },
-                deep: true
-            }
+    const watch: any = watchTarget.length > 0 ? {
+        url: {
+            handler(this: any, newValue: any, oldValue: any) {
+                Object.keys(newValue).forEach((key: string) => {
+                    if (newValue[key] !== oldValue[key] && includes(watchTarget, key)) {
+                        this.load(key)
+                    }
+                })
+            },
+            deep: true
         }
-    }
+    } : null
 
     const mixin = {
-        data,
+        data: () => resources,
         computed: {
             url() {
-                const returning: any = {}
-                Object.keys(urls).forEach((key: string) => {
-                    returning[key] = unwrap(this, urls[key])
-                })
-                return returning
+                return mapObject(urls, (_, value: any) => unwrap(this, value))
             }
         },
         watch,
@@ -70,32 +55,30 @@ export function createMixin(options: CheckedVueYarOptions, resourceInfoParam: Re
                 if (!url) {
                     logger.log("URL is not defined.")
                     return
-                } else {
-                    logger.log("Fetch URL: %s", url)
                 }
 
+                logger.log("Fetch URL: %s", url)
+
                 Promise.resolve(network(url)).then(response => {
-                    if (validate(response)) {
-                        return Promise.resolve(mutate(response))
-                    } else {
-                        logger.warn("Global validation failed on key '%s'", key)
-                        resourceInfo[key]["failed"].call(this)
-                        return Promise.reject("gvf")
-                    }
+                    return validate(response) ? Promise.resolve(mutate(response)) : Promise.reject("gvf")
                 }).then(result => {
-                    if (resourceInfo[key].validate(result)) {
+                    if (resourceInfo[key]["validate"].call(this, result)) {
                         this[key] = result
                         resourceInfo[key]["loaded"].call(this)
+                        return Promise.resolve(null)
                     } else {
-                        logger.warn("Response validation failed on key '%s'", key)
-                        resourceInfo[key]["failed"].call(this)
+                        return Promise.reject("vf")
                     }
                 }).catch(e => {
-                    if (e !== "gvf") {
+                    if (e === "gvf") {
+                        logger.warn("Global validation failed on key '%s'", key)
+                    } else if (e === "vf") {
+                        logger.warn("Response validation failed on key '%s'", key)
+                    } else {
                         logger.warn("Unexpected error on '%s'", key)
                         logger.warn(e)
-                        resourceInfo[key]["failed"].call(this, e)
                     }
+                    resourceInfo[key]["failed"].call(this, e)
                 })
             }
         }
@@ -132,7 +115,7 @@ export function createResourceComponent(options: CheckedVueYarOptions, rco: Reso
         name: rco.name || "ResourceComponent",
         props: rco.props,
         template: `<keep-alive><component :is="child" :resource="resource"></component></keep-alive>`,
-        data: () => data,
+        data: () => data,  // Shares `data` among components
         components: {
             success: { template: rco.template.success, props: rco.props, data: () => data, components: rco.components },
             loading: { template: rco.template.loading, props: rco.props, data: () => data, components: rco.components },

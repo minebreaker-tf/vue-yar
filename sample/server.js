@@ -9,7 +9,8 @@ app.get("/api/user/:id", (request, response) => {
     const body =
         requestedId === "1" ? { id: 1, name: "John" } :
             requestedId === "2" ? { id: 2, name: "Jack" } :
-                null
+                requestedId === "3" ? { id: 3 } :  // Sample of invalid response
+                    null
 
     if (body) {
         response.json(body)

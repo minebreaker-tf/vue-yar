@@ -4,6 +4,7 @@ import VueYar from "../build/rollup/vue-yar"
 // Load the plugin
 Vue.use(VueYar)
 
+
 // Resource Mixin
 
 const resourceMixin = Vue.withResource({
@@ -12,8 +13,8 @@ const resourceMixin = Vue.withResource({
             return `/api/user/${this.id}`
         },
         refetch: true,
-        validate(r) {
-            return r.id && r.name
+        validate(data) {
+            return data.id && data.name
         },
         loaded() {
             this.error = null
@@ -52,7 +53,10 @@ const resourceComponent = Vue.resource({
         success: `<div>ID: {{ resource.id }}, Name: {{ resource.name }}</div>`,
         failure: `<div>Error</div>`,
         loading: `<div>Loading...</div>`
-    }
+    },
+    validate(user) {
+        return user.id && user.name
+    },
 })
 
 const yourComponent2 = Vue.extend({
