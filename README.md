@@ -17,7 +17,17 @@ const resourceComponent = Vue.resource({
 })
 ```
 
-A sample file is found in `test/sample.js`.
+## Sample
+
+```bash
+npm install
+npm run build
+npm run server
+```
+
+`localhost:8000`
+
+Source: `test/sample.ts`
 
 
 ## Simple resource component
@@ -38,8 +48,8 @@ const component = Vue.resource({
         failure: `<p>Error</p>`
     },
     // Can validate the fetched resource is correct or not
-    validate() {
-        return data.id && data.name
+    validate: response => {
+        return response.id && response.name
     },
     // vue-yar life cycle hook
     beforeLoad() {},
