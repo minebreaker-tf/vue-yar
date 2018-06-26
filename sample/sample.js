@@ -11111,9 +11111,9 @@ function createResourceComponent(options, rco) {
                 this.child = "success";
                 rco.loaded && rco.loaded();
             },
-            failed() {
+            failed(e) {
                 this.child = "failure";
-                rco.failed && rco.failed();
+                rco.failed && rco.failed(e);
             }
         }
     });
@@ -11133,31 +11133,26 @@ function createResourceComponent(options, rco) {
 }
 
 const VueYarObject = {
-    install: function (Vue$$1, options) {
+    install: function (Vue, options) {
         const actualOptions = createOptions(options);
-        Vue$$1.withResource = function (resourceOptions) {
+        Vue.withResource = function (resourceOptions) {
             return createMixin(actualOptions, resourceOptions);
         };
-        Vue$$1.resource = function (resourceComponentOptions) {
+        Vue.resource = function (resourceComponentOptions) {
             return createResourceComponent(actualOptions, resourceComponentOptions);
         };
     }
 };
 
-// Load the plugin
 Vue.use(VueYarObject);
-
-
-// Resource Mixin
-
 const resourceMixin = Vue.withResource({
     user: {
         url() {
-            return `/api/user/${this.id}`
+            return `/api/user/${this.id}`;
         },
         refetch: true,
         validate(data) {
-            return data.id && data.name
+            return data.id && data.name;
         },
         loaded() {
             this.error = null;
@@ -11167,7 +11162,6 @@ const resourceMixin = Vue.withResource({
         }
     }
 });
-
 const yourComponent1 = Vue.extend({
     template: `
         <div>
@@ -11182,14 +11176,10 @@ const yourComponent1 = Vue.extend({
     }),
     mixins: [resourceMixin]
 });
-
-
-// Resource Component
-
 const resourceComponent = Vue.resource({
     props: ["id"],
     url() {
-        return `/api/user/${this.id}`
+        return `/api/user/${this.id}`;
     },
     refetch: true,
     template: {
@@ -11198,10 +11188,9 @@ const resourceComponent = Vue.resource({
         loading: `<div>Loading...</div>`
     },
     validate(user) {
-        return user.id && user.name
+        return user.id && user.name;
     },
 });
-
 const yourComponent2 = Vue.extend({
     template: `
         <div>
@@ -11215,7 +11204,6 @@ const yourComponent2 = Vue.extend({
         user: resourceComponent
     }
 });
-
 new Vue({
     el: "#app",
     template: `

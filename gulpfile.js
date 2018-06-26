@@ -50,7 +50,7 @@ gulp.task("rollup", () => {
 // テストファイル rollup
 gulp.task("rollup-sample", ["rollup"], () => {
     return rollup.rollup({
-        input: `${config.srcTestDir}/sample.js`,
+        input: `${config.srcTestDir}/sample.ts`,
         plugins: [
             rollupTypescript(),
             rollupAlias({

@@ -1,9 +1,10 @@
-import Vue, { ComponentOptions, PluginObject } from "vue"
+import { PluginObject } from "vue"
 import VueYarObject from "../src/vue-yar"
 
 export default VueYarObject
 
-export interface VueYar extends PluginObject<VueYarOptions> { }
+export interface VueYar extends PluginObject<VueYarOptions> {
+}
 
 export interface VueYarOptions {
     network?: (url: string) => any,
@@ -12,18 +13,18 @@ export interface VueYarOptions {
 }
 
 export interface CheckedVueYarOptions {
-    network: (url: string) => any,
+    network: (url: string) => any
     validate: (response: any) => boolean
     mutate: (response: any) => any
 }
 
 export interface ResourceOptionValue {
-    url: string
+    url: UrlDeclaration
     refetch?: boolean
-    validate?: (response: any) => boolean
-    beforeLoad?: () => void
-    loaded?: () => void
-    failed?: (e: any) => void
+    validate?: Validator
+    beforeLoad?: BeforeLoadHook
+    loaded?: LoadedHook
+    failed?: FailedHook
 }
 
 export interface ResourceOptions {
@@ -31,13 +32,13 @@ export interface ResourceOptions {
 }
 
 export interface ResourceComponentOptions {
-    url: string
+    url: UrlDeclaration
     template: ResourceTemplateSet
     refetch?: boolean
-    validate?: (response: any) => boolean
-    beforeLoad?: () => void
-    loaded?: () => void
-    failed?: (response?: any) => void
+    validate?: Validator
+    beforeLoad?: BeforeLoadHook
+    loaded?: LoadedHook
+    failed?: FailedHook
 
     [other: string]: any
 }
@@ -48,11 +49,18 @@ export interface ResourceTemplateSet {
     failure: string
 }
 
+type UrlDeclaration = string | ((this: any) => string)
+type Validator = (this: any, response: any) => boolean
+type BeforeLoadHook = (this: any) => void
+type LoadedHook = (this: any) => void
+type FailedHook = (this: any, e?: any) => void
+
 declare module "vue/types/vue" {
     interface VueConstructor<V extends Vue = Vue> {
         // withResource(componentOptions: ComponentOptions<Vue>, resourceOptions: ResourceOptions): ComponentOptions<Vue>
         // resource(resourceComponentOptions: ResourceComponentOptions): ComponentOptions<Vue>
         withResource(resourceOptions: ResourceOptions): any
+
         resource(resourceComponentOptions: ResourceComponentOptions): any
     }
 

@@ -1,5 +1,5 @@
 import Vue from "vue"
-import VueYar from "../build/rollup/vue-yar"
+import VueYar from "../src/vue-yar"
 
 // Load the plugin
 Vue.use(VueYar)

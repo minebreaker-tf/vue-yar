@@ -104,9 +104,9 @@ export function createResourceComponent(options: CheckedVueYarOptions, rco: Reso
                 this.child = "success"
                 rco.loaded && rco.loaded()
             },
-            failed(this: any) {
+            failed(this: any, e: any) {
                 this.child = "failure"
-                rco.failed && rco.failed()
+                rco.failed && rco.failed(e)
             }
         }
     })
