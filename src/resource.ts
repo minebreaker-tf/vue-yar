@@ -6,17 +6,14 @@ export function createMixin(options: CheckedVueYarOptions, resourceInfoParam: Re
 
     const { network, validate, mutate } = options
 
-    const resourceInfo: any = {}
-    for (let key in resourceInfoParam) {
-        resourceInfo[key] = {
-            url: resourceInfoParam[key]["url"],
-            refetch: !!resourceInfoParam[key]["refetch"],
-            validate: resourceInfoParam[key]["validate"] || alwaysTrue,
-            beforeLoad: resourceInfoParam[key]["beforeLoad"] || noop,
-            loaded: resourceInfoParam[key]["loaded"] || noop,
-            failed: resourceInfoParam[key]["failed"] || noop
-        }
-    }
+    const resourceInfo = mapObject(resourceInfoParam, (_, value) => ({
+        url: value["url"],
+        refetch: value["refetch"],
+        validate: value["validate"] || alwaysTrue,
+        beforeLoad: value["beforeLoad"] || noop,
+        loaded: value["loaded"] || noop,
+        failed: value["failed"] || noop
+    }))
 
     const urls = mapObject(resourceInfo, (_, value: any) => value.url)
     const resources = mapObject(resourceInfo, () => null)  // Inject keys with null for reactive parameters

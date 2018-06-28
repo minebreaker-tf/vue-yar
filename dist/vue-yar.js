@@ -82,17 +82,14 @@ function parseContentType(contentTypeString) {
 
 function createMixin(options, resourceInfoParam) {
     const { network, validate, mutate } = options;
-    const resourceInfo = {};
-    for (let key in resourceInfoParam) {
-        resourceInfo[key] = {
-            url: resourceInfoParam[key]["url"],
-            refetch: !!resourceInfoParam[key]["refetch"],
-            validate: resourceInfoParam[key]["validate"] || alwaysTrue,
-            beforeLoad: resourceInfoParam[key]["beforeLoad"] || noop,
-            loaded: resourceInfoParam[key]["loaded"] || noop,
-            failed: resourceInfoParam[key]["failed"] || noop
-        };
-    }
+    const resourceInfo = mapObject(resourceInfoParam, (_, value) => ({
+        url: value["url"],
+        refetch: value["refetch"],
+        validate: value["validate"] || alwaysTrue,
+        beforeLoad: value["beforeLoad"] || noop,
+        loaded: value["loaded"] || noop,
+        failed: value["failed"] || noop
+    }));
     const urls = mapObject(resourceInfo, (_, value) => value.url);
     const resources = mapObject(resourceInfo, () => null);
     const watchTarget = Object.keys(resourceInfo).filter(key => resourceInfo[key].refetch);
